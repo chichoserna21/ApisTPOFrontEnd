@@ -1,23 +1,16 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import ProductList from './components/ProductList';
-import './App.css';
 import ProductDetail from './components/ProductDetail';
+import Cart from './components/Cart';
+import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
-// Componentes para las vistas principales del proyecto
 function Home() {
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
       <h1>Estética & Cuidado Personal</h1>
       <p>Bienvenido/a a nuestra tienda. Descubrí nuestros productos y promociones exclusivas.</p>
-    </div>
-  );
-}
-
-function Cart() {
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Tu Carrito de Compras</h2>
-      <p>Aquí se visualizarán los ítems seleccionados antes de confirmar tu pedido.</p>
     </div>
   );
 }
@@ -31,19 +24,24 @@ function Ofertas() {
   );
 }
 
-function Login() {
+function Login({ isAuthenticated, setIsAuthenticated }) {
   return (
     <div style={{ padding: '2rem' }}>
       <h2>Iniciar Sesión</h2>
-      <p>Accedé con tu cuenta para gestionar tus compras y perfil.</p>
+      <p>Estado actual: {isAuthenticated ? 'Conectado' : 'No conectado'}</p>
+      <button onClick={() => setIsAuthenticated(!isAuthenticated)}>
+        {isAuthenticated ? 'Cerrar Sesión' : 'Simular Iniciar Sesión'}
+      </button>
     </div>
   );
 }
 
 function App() {
+  // Estado para simular si el usuario inició sesión
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
   return (
     <BrowserRouter>
-      {/* Barra de navegación superior (SPA) */}
       <nav style={{ 
         display: 'flex', 
         alignItems: 'center',
@@ -54,7 +52,6 @@ function App() {
       }}>
         <h2 style={{ margin: 0, marginRight: 'auto', fontSize: '1.4rem' }}>Estética App</h2>
         
-        {/* Uso de <Link> en lugar de <a href=""> para evitar recargar la página */}
         <Link to="/" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Inicio</Link>
         <Link to="/productos" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Productos</Link>
         <Link to="/ofertas" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Ofertas</Link>
@@ -62,15 +59,27 @@ function App() {
         <Link to="/login" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Ingresar</Link>
       </nav>
 
-      {/* Definición de Rutas */}
       <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/productos" element={<ProductList />} />
-          <Route path="/productos/:id" element={<ProductDetail />} /> {/* <--- Ruta dinámica */}
+          <Route path="/productos/:id" element={<ProductDetail />} />
           <Route path="/ofertas" element={<Ofertas />} />
-          <Route path="/carrito" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
+          
+          {/* Ruta Protegida: Solo accede si isAuthenticated es true */}
+          <Route 
+            path="/carrito" 
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Cart />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/login" 
+            element={<Login isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} 
+          />
         </Routes>
       </main>
     </BrowserRouter>
