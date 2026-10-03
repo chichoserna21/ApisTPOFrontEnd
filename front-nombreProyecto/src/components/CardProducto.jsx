@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './CardProducto.css';
 
 const CardProducto = ({ product }) => {
@@ -10,7 +11,12 @@ const CardProducto = ({ product }) => {
         
         <div className="producto-footer">
           <span className="producto-precio">${product.precio}</span>
-          <button className="btn-agregar">Agregar</button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Link to={`/productos/${product.id}`} className="btn-agregar" style={{ textDecoration: 'none', textAlign: 'center' }}>
+              Ver detalle
+            </Link>
+            <button className="btn-agregar">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
