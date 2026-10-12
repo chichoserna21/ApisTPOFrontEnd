@@ -1,0 +1,60 @@
+{
+  "announcement": "UN POCO DE CUIDADO, MUCHO DE TI - Envío gratis en pedidos desde 50 €",
+  "navigation": [
+    { "id": 1, "label": "Inicio", "url": "/", "featured": false },
+    { "id": 2, "label": "Cuidado Facial", "url": "/cuidado-facial", "featured": false },
+    { "id": 3, "label": "Maquillaje", "url": "/maquillaje", "featured": false },
+    { "id": 4, "label": "Cuerpo y Baño", "url": "/cuerpo-y-bano", "featured": false },
+    { "id": 5, "label": "Fragancias", "url": "/fragancias", "featured": false },
+    { "id": 6, "label": "Ofertas", "url": "/ofertas", "featured": true }
+  ],
+  "footerLinks": [
+    { "id": 1, "label": "Sobre ALMA", "url": "/sobre-alma" },
+    { "id": 2, "label": "Envíos y devoluciones", "url": "/envios-devoluciones" },
+    { "id": 3, "label": "Contacto", "url": "/contacto" }
+  ],
+  "products" : [
+    {
+      "id": 1,
+      "nombre": "Sérum Facial Ácido Hialurónico",
+      "descripcion": "Hidratación profunda que rellena líneas de expresión y revitaliza la elasticidad cutánea.",
+      "precio": 14500,
+      "categoria": "Cuidado Facial"
+    },
+    {
+      "id": 2,
+      "nombre": "Crema Facial Anti-Age Vitamina C",
+      "descripcion": "Fórmula restauradora que aporta luminosidad y estimula la síntesis de colágeno.",
+      "precio": 18200,
+      "categoria": "Cuidado Facial"
+    },
+    {
+      "id": 3,
+      "nombre": "Protector Solar Facial Toque Seco FPS 50+",
+      "descripcion": "Alta protección UVA/UVB con textura liviana, rápida absorción y acabado mate.",
+      "precio": 16900,
+      "categoria": "Protección Solar"
+    },
+    {
+      "id": 4,
+      "nombre": "Gel Limpiador Purificante Botánico",
+      "descripcion": "Limpieza profunda suave con extractos botánicos que remueve impurezas sin resecar.",
+      "precio": 11300,
+      "categoria": "Limpieza Facial"
+    },
+    {
+      "id": 5,
+      "nombre": "Mascarilla Detox de Arcilla y Carbón",
+      "descripcion": "Tratamiento desintoxicante y purificador que minimiza poros y calma la dermis.",
+      "precio": 13400,
+      "categoria": "Tratamientos"
+    },
+    {
+      "id": 6,
+      "nombre": "Aceite Corporal Nutritivo Reafirmante",
+      "descripcion": "Complejo de aceites naturales de rosa mosqueta y almendras para nutrición y firmeza.",
+      "precio": 15800,
+      "categoria": "Cuidado Corporal"
+    }
+]
+}
