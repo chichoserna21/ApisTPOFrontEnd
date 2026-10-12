@@ -1,0 +1,109 @@
+.site-header {
+    width: 100%;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #fdfbf7;
+    color: #333333;
+  }
+  
+  /* Announcement Bar */
+  .top-bar {
+    background-color: #f3e8e2;
+    text-align: center;
+    padding: 8px 16px;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  
+  /* Main Header */
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px dashed #e2d9d5;
+  }
+  
+  .brand-logo {
+    font-family: 'Didot', 'Bodoni MT', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    margin: 0;
+  }
+  
+  .brand-tagline {
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: #777;
+    margin-top: -4px;
+  }
+  
+  /* Search Bar */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #f2ebe7;
+    padding: 8px 16px;
+    border-radius: 4px;
+    width: 380px;
+  }
+  
+  .search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    margin-left: 8px;
+    font-size: 0.85rem;
+    color: #555;
+  }
+  
+  /* User Actions */
+  .user-actions {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .action-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.85rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Navigation Bar */
+  .nav-bar {
+    border-bottom: 1px dashed #e2d9d5;
+    padding: 12px 0;
+  }
+  
+  .nav-bar ul {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: #444;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  
+  .nav-link:hover {
+    color: #8b5e56;
+  }
+  
+  .nav-link.featured {
+    color: #9e4b4b;
+  }

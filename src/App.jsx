@@ -1,16 +1,26 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import {Header, Footer} from './layouts'
+import './App.css';
 
 function App() {
+  const [cart, setCart] = useState([]);
 
-  const [count, setCount] = useState(0)
+  const handleSearch = (query) => {
+    console.log("Buscando:", query);
+  };
 
   return (
-    <>
-      <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-        <h1> restart </h1>
-      </div>
-    </>
-  )
+    <div className="app-container">
+      <Header cartCount={cart.length} onSearch={handleSearch} />
+      
+      <main className="main-content">
+
+        <h2>Bienvenido a ALMA</h2>
+      </main>
+
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
