@@ -24,6 +24,11 @@
     border-bottom: 1px dashed #e2d9d5;
   }
   
+  .logo-container {
+    text-decoration: none;
+    color: inherit;
+  }
+
   .brand-logo {
     font-family: 'Didot', 'Bodoni MT', serif;
     font-size: 2rem;

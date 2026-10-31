@@ -1,0 +1,20 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  text-align: left;
+  background-color: #fdfbf7;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  padding: 24px 40px 48px;
+  box-sizing: border-box;
+}
+
+.detail-back {
+  color: #8b5e56;
+  margin-top: 16px;
+  display: inline-block;
+}

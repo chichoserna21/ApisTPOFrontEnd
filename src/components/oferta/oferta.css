@@ -1,0 +1,161 @@
+/* Contenedor principal con Flexbox */
+.promo-banner-container {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 420px;
+    background-color: #f8f1f1; /* Fondo rosado/beige claro */
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    margin: 0 auto;
+  }
+  
+  /* Columna izquierda: Contenido textual */
+  .promo-banner-content {
+    flex: 1;
+    padding: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .promo-banner-category {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a38186;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  
+  .promo-banner-title {
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: 400;
+    color: #332326;
+    margin: 0 0 20px 0;
+  }
+  
+  .promo-banner-description {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.95rem;
+    color: #6d5b5e;
+    line-height: 1.5;
+    margin: 0 0 28px 0;
+  }
+  
+  /* Botón de acción */
+  .promo-banner-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    padding: 12px 24px;
+    background-color: #925c68; /* Tono borravino/rosado oscuro */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .promo-banner-button:hover {
+    background-color: #7a4a55;
+  }
+  
+  .promo-banner-button:active {
+    transform: scale(0.98);
+  }
+  
+  .promo-banner-arrow {
+    font-size: 1.1rem;
+  }
+  
+  /* Footer / Paginado interior */
+  .promo-banner-footer {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.75rem;
+    color: #9b8a8d;
+  }
+  
+  .promo-banner-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .pagination-bar.active {
+    width: 16px;
+    height: 3px;
+    background-color: #925c68;
+    border-radius: 2px;
+  }
+  
+  .pagination-dot {
+    width: 3px;
+    height: 3px;
+    background-color: #c4b5b8;
+    border-radius: 50%;
+  }
+  
+  .pagination-text {
+    margin-left: 8px;
+  }
+  
+  /* Columna derecha: Contenedor de la imagen */
+  .promo-banner-image-wrapper {
+    flex: 1;
+    position: relative;
+    background-color: #eae1e2;
+  }
+  
+  .promo-banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  /* Placeholder para cuando no se pase imagen */
+  .promo-banner-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8c7b7e;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.9rem;
+    border-left: 1px dashed #d5c4c7;
+  }
+  
+  /* Diseños responsivos para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .promo-banner-container {
+      flex-direction: column;
+    }
+  
+    .promo-banner-content {
+      padding: 28px 24px;
+    }
+  
+    .promo-banner-image-wrapper {
+      height: 250px;
+    }
+  
+    .promo-banner-title {
+      font-size: 2.2rem;
+    }
+  }

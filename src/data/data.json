@@ -2,7 +2,7 @@
   "announcement": "UN POCO DE CUIDADO, MUCHO DE TI - Envío gratis en pedidos desde 50 €",
   "navigation": [
     { "id": 1, "label": "Inicio", "url": "/", "featured": false },
-    { "id": 2, "label": "Cuidado Facial", "url": "/cuidado-facial", "featured": false },
+    { "id": 2, "label": "Cuidado Facial", "url": "/productos?categoria=Cuidado Facial", "featured": false },
     { "id": 3, "label": "Maquillaje", "url": "/maquillaje", "featured": false },
     { "id": 4, "label": "Cuerpo y Baño", "url": "/cuerpo-y-bano", "featured": false },
     { "id": 5, "label": "Fragancias", "url": "/fragancias", "featured": false },
