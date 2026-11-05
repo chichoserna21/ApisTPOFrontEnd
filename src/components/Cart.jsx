@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Cart.css';
 
-const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart }) => {
+const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onCheckout }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const [checkoutSuccess, setCheckoutSuccess] = useState('');
+  const [checkoutFailure, setCheckoutFailure] = useState('');
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { checkoutLoading, checkoutError } = useSelector((state) => state.account);
+  const cartError = useSelector((state) => state.cart.syncError);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.precio * (item.cantidad || 1),
@@ -14,8 +19,9 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart }) =
   const costoEnvio = subtotal === 0 ? 0 : envioGratis ? 0 : 4.99;
   const total = subtotal + costoEnvio;
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cartItems.length === 0) return;
+    setCheckoutFailure('');
 
     // VALIDACIÓN OBLIGATORIA DEL TEMARIO:
     // Para finalizar la compra se requiere usuario autenticado con JWT
@@ -25,13 +31,23 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart }) =
       return;
     }
 
-    onClearCart();
-    alert(`🎉 ¡Compra procesada con éxito, ${user?.nombre || user?.email}! Tu pedido ha sido confirmado. Gracias por elegir ALMA.`);
+    try {
+      const order = await onCheckout();
+      setCheckoutSuccess(`Pedido #${order.id} confirmado correctamente.`);
+    } catch (error) {
+      setCheckoutSuccess('');
+      setCheckoutFailure(error.message || 'No se pudo confirmar el pedido.');
+    }
   };
 
   return (
     <div className="alma-cart-page">
       <h1 className="cart-page-title">Tu Carrito de Compras</h1>
+      {checkoutSuccess && <p role="status">{checkoutSuccess}</p>}
+      {checkoutFailure && <p role="alert" className="auth-error-banner">{checkoutFailure}</p>}
+      {(cartError || checkoutError) && (
+        <p role="alert" className="auth-error-banner">{cartError || checkoutError}</p>
+      )}
 
       {cartItems.length === 0 ? (
         <div className="empty-cart-card">
@@ -142,8 +158,9 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart }) =
               <button
                 className={`checkout-cta-btn ${!isAuthenticated ? 'requires-auth' : ''}`}
                 onClick={handleCheckout}
+                disabled={checkoutLoading}
               >
-                {isAuthenticated ? 'Tramitar pedido' : 'Iniciar sesión para comprar'}
+                {checkoutLoading ? 'Confirmando pedido...' : isAuthenticated ? 'Tramitar pedido' : 'Iniciar sesión para comprar'}
               </button>
 
               {!isAuthenticated && (
