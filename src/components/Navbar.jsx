@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
+import { clearAccount } from '../store/accountSlice';
 import { fetchCategorias } from '../services/api';
 import './Navbar.css';
 
@@ -16,6 +17,7 @@ const Navbar = () => {
   // Datos globales desde Redux
   const cartItems = useSelector((state) => state.cart.items);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const profile = useSelector((state) => state.account.profile);
 
   const totalCartCount = cartItems.reduce(
     (acc, item) => acc + (item.cantidad || 1),
@@ -48,6 +50,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearAccount());
     dispatch(switchCartUser(null));
     navigate('/');
   };
@@ -84,7 +87,10 @@ const Navbar = () => {
             {isAuthenticated ? (
               <div className="alma-user-badge">
                 <Link to="/perfil" className="alma-action-link">
-                  👤 <span>{user?.nombre || 'Mi Cuenta'}</span>
+                  👤 <span>{profile?.nombre || user?.nombre || 'Mi Cuenta'}</span>
+                </Link>
+                <Link to="/favoritos" className="alma-action-link">
+                  ❤️ <span>Favoritos</span>
                 </Link>
                 <button onClick={handleLogout} className="alma-logout-btn" title="Cerrar sesión">
                   (Salir)
