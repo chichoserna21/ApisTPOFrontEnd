@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
+import { loadAccountData } from '../store/accountSlice';
 import { loginApi } from '../services/api';
 import './Auth.css';
 
@@ -31,31 +32,22 @@ const Login = () => {
     try {
       // 1. LLAMADA REAL AL ENDPOINT POST /api/auth/login DE SPRING BOOT
       const data = await loginApi(email, password);
+      if (!data.token) throw new Error('La API no devolvió un token de sesión válido.');
       
       // 2. GUARDAR EN EL STORE DE REDUX
       const userEmail = data.email || email;
-      dispatch(
-        loginSuccess({
-          email: userEmail,
-          nombre: userEmail.split('@')[0],
-          token: data.token,
-          rol: data.rol
-        })
-      );
+      dispatch(loginSuccess({
+        email: userEmail,
+        nombre: data.nombre || userEmail.split('@')[0],
+        apellido: data.apellido || '',
+        token: data.token,
+        rol: data.rol
+      }));
       dispatch(switchCartUser(userEmail));
+      await dispatch(loadAccountData());
       navigate(destination, { replace: true });
     } catch (err) {
-      console.warn('Login con API falló, activando fallback local:', err.message);
-      dispatch(
-        loginSuccess({
-          email,
-          nombre: email.split('@')[0],
-          token: 'mock-jwt-token-alma',
-          rol: 'ROLE_USER'
-        })
-      );
-      dispatch(switchCartUser(email));
-      navigate(destination, { replace: true });
+      setError(err.message || 'No se pudo iniciar sesión. Inténtalo nuevamente.');
     } finally {
       setLoading(false);
     }
