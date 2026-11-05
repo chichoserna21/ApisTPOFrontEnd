@@ -1,19 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Obtener email activo al iniciar la app
 const initialEmail = typeof window !== 'undefined' ? localStorage.getItem('alma_user_email') : null;
 
-// Clave en localStorage según el usuario (cada cuenta tiene su propio carrito)
-const getStorageKey = (email) => (email ? `alma_cart_${email}` : 'alma_cart_guest');
-
-// Cargar estado inicial desde localStorage para persistencia
-const loadCartFromStorage = (email) => {
+const loadGuestCart = () => {
   try {
-    const key = getStorageKey(email);
-    const saved = localStorage.getItem(key);
+    const saved = localStorage.getItem('alma_cart_guest');
     return saved ? JSON.parse(saved) : [];
   } catch {
     return [];
+  }
+};
+
+const persistGuestCart = (state) => {
+  if (!state.currentUserEmail) {
+    localStorage.setItem('alma_cart_guest', JSON.stringify(state.items));
   }
 };
 
@@ -21,28 +21,15 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState: {
     currentUserEmail: initialEmail,
-    items: loadCartFromStorage(initialEmail)
+    items: initialEmail ? [] : loadGuestCart(),
+    syncError: null
   },
   reducers: {
-    // Cambiar de usuario y cargar su carrito correspondiente
     switchCartUser: (state, action) => {
       const email = action.payload || null;
       state.currentUserEmail = email;
-      if (email) {
-        const userSaved = localStorage.getItem(`alma_cart_${email}`);
-        if (userSaved) {
-          state.items = JSON.parse(userSaved);
-        } else if (state.items.length > 0) {
-          // Preserva los productos elegidos como invitado y los asocia a su nueva sesión
-          localStorage.setItem(`alma_cart_${email}`, JSON.stringify(state.items));
-          localStorage.removeItem('alma_cart_guest');
-        } else {
-          state.items = [];
-        }
-      } else {
-        const guestSaved = localStorage.getItem('alma_cart_guest');
-        state.items = guestSaved ? JSON.parse(guestSaved) : [];
-      }
+      state.items = email ? [] : loadGuestCart();
+      state.syncError = null;
     },
     addToCart: (state, action) => {
       const { product, quantity = 1, formato = '50 ml' } = action.payload;
@@ -63,7 +50,7 @@ const cartSlice = createSlice({
           imagen: product.imagen
         });
       }
-      localStorage.setItem(getStorageKey(state.currentUserEmail), JSON.stringify(state.items));
+      persistGuestCart(state);
     },
     updateQuantity: (state, action) => {
       const { id, formato, cantidad } = action.payload;
@@ -77,19 +64,40 @@ const cartSlice = createSlice({
         );
         if (item) item.cantidad = cantidad;
       }
-      localStorage.setItem(getStorageKey(state.currentUserEmail), JSON.stringify(state.items));
+      persistGuestCart(state);
     },
     removeFromCart: (state, action) => {
       const { id, formato } = action.payload;
       state.items = state.items.filter(
         (item) => !(item.id === id && item.formato === formato)
       );
-      localStorage.setItem(getStorageKey(state.currentUserEmail), JSON.stringify(state.items));
+      persistGuestCart(state);
     },
     clearCart: (state) => {
       state.items = [];
-      localStorage.removeItem(getStorageKey(state.currentUserEmail));
+      if (!state.currentUserEmail) localStorage.removeItem('alma_cart_guest');
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase('account/load/fulfilled', (state, action) => {
+        state.items = action.payload.cart;
+        state.syncError = null;
+      })
+      .addCase('account/mutateCart.pending', (state) => {
+        state.syncError = null;
+      })
+      .addCase('account/mutateCart.fulfilled', (state, action) => {
+        state.items = action.payload;
+        state.syncError = null;
+      })
+      .addCase('account/mutateCart.rejected', (state, action) => {
+        state.syncError = action.payload || action.error.message;
+      })
+      .addCase('account/checkout.fulfilled', (state) => {
+        state.items = [];
+        state.syncError = null;
+      });
   }
 });
 
