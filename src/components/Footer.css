@@ -1,0 +1,157 @@
+.alma-footer {
+  width: 100%;
+  margin-top: auto;
+  background-color: #faf6f2;
+  border-top: 1px solid var(--alma-card-border);
+}
+
+/* Pilares de beneficios */
+.alma-benefits-strip {
+  border-bottom: 1px solid var(--alma-card-border);
+  padding: 2.2rem 1.5rem;
+}
+
+.alma-benefits-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.alma-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.benefit-icon {
+  font-size: 1.8rem;
+}
+
+.benefit-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.benefit-text strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--alma-text);
+}
+
+.benefit-text span {
+  font-size: 0.78rem;
+  color: var(--alma-text-muted);
+}
+
+/* Footer principal */
+.alma-footer-main {
+  padding: 3rem 1.5rem 1.5rem;
+}
+
+.alma-footer-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid #eee7e0;
+}
+
+.alma-footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-logo {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.brand-slogan {
+  font-size: 0.72rem;
+  color: var(--alma-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.alma-footer-links {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.alma-footer-links a {
+  font-size: 0.88rem;
+  color: var(--alma-text);
+  font-weight: 500;
+}
+
+.alma-footer-links a:hover {
+  color: var(--alma-primary);
+}
+
+.alma-footer-social {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.alma-footer-social a {
+  font-size: 0.85rem;
+  color: var(--alma-text-muted);
+}
+
+.alma-footer-social a:hover {
+  color: var(--alma-primary);
+}
+
+.alma-footer-bottom {
+  max-width: 1280px;
+  margin: 1.5rem auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--alma-text-muted);
+}
+
+.alma-legal-links {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.alma-legal-links a {
+  color: var(--alma-text-muted);
+}
+
+.alma-legal-links a:hover {
+  color: var(--alma-primary);
+}
+
+@media (max-width: 900px) {
+  .alma-benefits-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .alma-footer-container {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .alma-footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  .alma-footer-bottom {
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+  }
+}

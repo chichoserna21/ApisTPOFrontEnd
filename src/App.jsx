@@ -1,87 +1,183 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { addToCart, updateQuantity, removeFromCart, clearCart, switchCartUser } from './store/cartSlice';
+import { logout } from './store/authSlice';
+import productsData from './data/products.json';
+import { fetchProductos, normalizeProduct } from './services/api';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './components/Home';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
+import Ofertas from './components/Ofertas';
 import Cart from './components/Cart';
+import Login from './components/Login';
+import Register from './components/Register';
+import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotFound from './components/NotFound';
 import './App.css';
 
-function Home() {
-  return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>Estética & Cuidado Personal</h1>
-      <p>Bienvenido/a a nuestra tienda. Descubrí nuestros productos y promociones exclusivas.</p>
-    </div>
-  );
-}
-
-function Ofertas() {
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Ofertas Especiales</h2>
-      <p>Aprovechá los descuentos y tratamientos destacados de la semana.</p>
-    </div>
-  );
-}
-
-function Login({ isAuthenticated, setIsAuthenticated }) {
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Iniciar Sesión</h2>
-      <p>Estado actual: {isAuthenticated ? 'Conectado' : 'No conectado'}</p>
-      <button onClick={() => setIsAuthenticated(!isAuthenticated)}>
-        {isAuthenticated ? 'Cerrar Sesión' : 'Simular Iniciar Sesión'}
-      </button>
-    </div>
-  );
-}
-
 function App() {
-  // Estado para simular si el usuario inició sesión
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const dispatch = useDispatch();
+
+  // Estados de Redux
+  const cartItems = useSelector((state) => state.cart.items);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+
+  // Estados locales para los productos y API
+  const [products, setProducts] = useState(productsData.map(normalizeProduct));
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
+  const [backendOnline, setBackendOnline] = useState(false);
+
+  /**
+   * LLAMADA A LA API DEL TPO MEDIANTE EL HOOK useEffect
+   * Consume GET /api/productos al montar el componente.
+   */
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    fetchProductos()
+      .then((apiProducts) => {
+        if (!isMounted) return;
+        if (apiProducts && apiProducts.length > 0) {
+          setProducts(apiProducts);
+          setBackendOnline(true);
+        } else {
+          setProducts(productsData.map(normalizeProduct));
+        }
+        setApiError(null);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.warn('Backend API no disponible (usando catálogo de respaldo):', err.message);
+        setProducts(productsData.map(normalizeProduct));
+        setApiError('Backend fuera de línea (puerto 8080).');
+        setBackendOnline(false);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Handlers que ahora despachan acciones a REDUX
+  const handleAddToCart = (product, quantity = 1, formato = '50 ml') => {
+    dispatch(addToCart({ product, quantity, formato }));
+  };
+
+  const handleUpdateQuantity = (id, formato, cantidad) => {
+    dispatch(updateQuantity({ id, formato, cantidad }));
+  };
+
+  const handleRemoveItem = (id, formato) => {
+    dispatch(removeFromCart({ id, formato }));
+  };
+
+  const handleClearCart = () => {
+    dispatch(clearCart());
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(switchCartUser(null));
+  };
 
   return (
     <BrowserRouter>
-      <nav style={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        gap: '1.5rem', 
-        padding: '1rem 2rem', 
-        backgroundColor: '#2c3e50', 
-        color: '#ffffff'
-      }}>
-        <h2 style={{ margin: 0, marginRight: 'auto', fontSize: '1.4rem' }}>Estética App</h2>
-        
-        <Link to="/" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Inicio</Link>
-        <Link to="/productos" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Productos</Link>
-        <Link to="/ofertas" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Ofertas</Link>
-        <Link to="/carrito" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Carrito</Link>
-        <Link to="/login" style={{ color: '#ecf0f1', textDecoration: 'none' }}>Ingresar</Link>
-      </nav>
+      {/* Header con Redux y categorías del backend */}
+      <Navbar />
 
-      <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Indicador de estado de la API Spring Boot */}
+      <div className="api-status-banner">
+        {backendOnline ? (
+          <span className="api-status-pill online">
+            ● API Spring Boot Conectada (http://localhost:8080)
+          </span>
+        ) : (
+          <span className="api-status-pill offline" title={apiError || ''}>
+            ○ Modo Catálogo Local Activo (Backend 8080 desconectado)
+          </span>
+        )}
+      </div>
+
+      {/* Contenido principal ruteado con React Router */}
+      <main className="alma-main-viewport">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/productos" element={<ProductList />} />
-          <Route path="/productos/:id" element={<ProductDetail />} />
-          <Route path="/ofertas" element={<Ofertas />} />
-          
-          {/* Ruta Protegida: Solo accede si isAuthenticated es true */}
-          <Route 
-            path="/carrito" 
+          <Route
+            path="/"
+            element={
+              <Home
+                products={products}
+                loading={loading}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path="/productos"
+            element={
+              <ProductList
+                products={products}
+                loading={loading}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path="/productos/:id"
+            element={
+              <ProductDetail
+                products={products}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path="/ofertas"
+            element={
+              <Ofertas
+                products={products}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path="/carrito"
+            element={
+              <Cart
+                cartItems={cartItems}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveItem={handleRemoveItem}
+                onClearCart={handleClearCart}
+              />
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Register />} />
+
+          {/* RUTA PROTEGIDA CON REDUX */}
+          <Route
+            path="/perfil"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <Cart />
+                <Profile user={user} onLogout={handleLogout} />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          <Route 
-            path="/login" 
-            element={<Login isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} 
-          />
+
+          {/* RUTA 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+
+      <Footer />
     </BrowserRouter>
   );
 }

@@ -1,1 +1,37 @@
-/* Estilos para el componente principal de la aplicación */
+/* Estilos para el contenedor de la aplicación */
+.alma-main-viewport {
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - 350px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Indicador de estado de la API (para defensa de TPO) */
+.api-status-banner {
+  display: flex;
+  justify-content: center;
+  padding: 0.35rem 1rem;
+  background-color: #faf5f0;
+  border-bottom: 1px solid var(--alma-card-border);
+}
+
+.api-status-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.api-status-pill.online {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.api-status-pill.offline {
+  background-color: #fdf2e9;
+  color: #b76e2e;
+  border: 1px solid #fae5d3;
+}

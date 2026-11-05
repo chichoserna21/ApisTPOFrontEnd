@@ -1,10 +1,15 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
-// Componente que simula la protección de rutas (ej: solo usuarios autenticados)
+/**
+ * Componente de Ruta Protegida:
+ * Si el usuario no está autenticado, lo redirige al login guardando la ruta de origen
+ * en el state para volver a ella una vez iniciada la sesión.
+ */
 const ProtectedRoute = ({ children, isAuthenticated }) => {
+  const location = useLocation();
+
   if (!isAuthenticated) {
-    // Redirige al login si no está autenticado, reemplazando la historia
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;

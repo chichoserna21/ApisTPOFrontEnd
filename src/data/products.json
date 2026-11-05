@@ -1,44 +1,211 @@
 [
   {
     "id": 1,
-    "nombre": "Sérum Facial Ácido Hialurónico",
-    "descripcion": "Hidratación profunda que rellena líneas de expresión y revitaliza la elasticidad cutánea.",
-    "precio": 14500,
-    "categoria": "Cuidado Facial"
+    "nombre": "Crema Hidratante Hydra Cashmere",
+    "subtitulo": "Hidratación profunda y efecto redensificante",
+    "descripcion": "Hidratación que se siente, luminosidad que se ve. Una crema suntuosa y ligera con ácido hialurónico, péptidos y extractos botánicos que deja la piel suave, firme y confortable sin sensación grasa.",
+    "precio": 22.40,
+    "precioAnterior": 32.00,
+    "descuento": "30%",
+    "badge": "30% FAVORITO ALMA",
+    "categoria": "Cuidado Facial",
+    "rating": 4.8,
+    "reviewsCount": 128,
+    "imagen": "/images/firming-cashmere.jpg",
+    "imagenes": [
+      "/images/firming-cashmere.jpg",
+      "/images/producto-2.jpg",
+      "/images/rhode-2.jpg"
+    ],
+    "beneficios": [
+      "Hidrata 24 h",
+      "Todo tipo de piel",
+      "Fórmula vegana"
+    ],
+    "formatos": ["50 ml", "100 ml"],
+    "stock": true,
+    "comoUsarlo": "Aplica mañana y noche sobre el rostro y cuello limpios con un suave masaje ascendente. Por la mañana, finaliza con protección solar.",
+    "destacado": true
   },
   {
     "id": 2,
-    "nombre": "Crema Facial Anti-Age Vitamina C",
-    "descripcion": "Fórmula restauradora que aporta luminosidad y estimula la síntesis de colágeno.",
-    "precio": 18200,
-    "categoria": "Cuidado Facial"
+    "nombre": "Sérum Hidratación Profunda Bouncy Cactus",
+    "subtitulo": "Luminosidad y elasticidad inmediata",
+    "descripcion": "Concentrado botánico de alta potencia con extracto puro de cactus y ácido hialurónico multimolecular. Restaura la barrera de hidratación y aporta un brillo fresco y elástico.",
+    "precio": 28.00,
+    "precioAnterior": 40.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Cuidado Facial",
+    "rating": 4.9,
+    "reviewsCount": 95,
+    "imagen": "/images/producto-3.jpg",
+    "imagenes": [
+      "/images/producto-3.jpg"
+    ],
+    "beneficios": [
+      "Luminosidad instantánea",
+      "Acción antioxidante",
+      "Textura acuosa de rápida absorción"
+    ],
+    "formatos": ["30 ml", "50 ml"],
+    "stock": true,
+    "destacado": true
   },
   {
     "id": 3,
-    "nombre": "Protector Solar Facial Toque Seco FPS 50+",
-    "descripcion": "Alta protección UVA/UVB con textura liviana, rápida absorción y acabado mate.",
-    "precio": 16900,
-    "categoria": "Protección Solar"
+    "nombre": "Bálsamo Labial con Péptidos Ribbon Tint",
+    "subtitulo": "Nutrición intensa con toque de color",
+    "descripcion": "Tratamiento restaurador para labios enriquecido con péptidos, manteca de karité y babasú. Deja los labios visiblemente más carnosos, hidratados y con un acabado gloss sedoso.",
+    "precio": 16.80,
+    "precioAnterior": 24.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Maquillaje",
+    "rating": 4.9,
+    "reviewsCount": 184,
+    "imagen": "/images/rhode-2.jpg",
+    "imagenes": [
+      "/images/rhode-2.jpg",
+      "/images/producto-1.jpg",
+      "/images/hero-rhode.jpg"
+    ],
+    "beneficios": [
+      "Repara labios secos",
+      "Brillo natural sin sensación pegajosa",
+      "Enriquecido con péptidos activos"
+    ],
+    "formatos": ["10 ml"],
+    "stock": true,
+    "destacado": true
   },
   {
     "id": 4,
-    "nombre": "Gel Limpiador Purificante Botánico",
-    "descripcion": "Limpieza profunda suave con extractos botánicos que remueve impurezas sin resecar.",
-    "precio": 11300,
-    "categoria": "Limpieza Facial"
+    "nombre": "Crema Hidratante Botánica Custom",
+    "subtitulo": "Nutrición equilibrada para uso diario",
+    "descripcion": "Fórmula botánica equilibrada con extractos vegetales activos que restauran el manto hidrolipídico sin obstruir poros. Ideal para pieles mixtas a secas.",
+    "precio": 29.40,
+    "precioAnterior": 42.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Cuidado Facial",
+    "rating": 4.8,
+    "reviewsCount": 112,
+    "imagen": "/images/producto-2.jpg",
+    "imagenes": [
+      "/images/producto-2.jpg",
+      "/images/firming-cashmere.jpg"
+    ],
+    "beneficios": [
+      "Calma y reequilibra",
+      "Acabado mate aterciopelado",
+      "Sin siliconas ni parabenos"
+    ],
+    "formatos": ["50 ml"],
+    "stock": true,
+    "destacado": true
   },
   {
     "id": 5,
-    "nombre": "Mascarilla Detox de Arcilla y Carbón",
-    "descripcion": "Tratamiento desintoxicante y purificador que minimiza poros y calma la dermis.",
-    "precio": 13400,
-    "categoria": "Tratamientos"
+    "nombre": "Bálsamo Labial Péptidos Matcha Care",
+    "subtitulo": "Antioxidante y suavidad reparadora",
+    "descripcion": "Tratamiento nutritivo formulado con té verde matcha rico en polifenoles y péptidos regeneradores para una protección labial antioxidante durante todo el día.",
+    "precio": 16.80,
+    "precioAnterior": 24.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Maquillaje",
+    "rating": 4.7,
+    "reviewsCount": 78,
+    "imagen": "/images/rhode-1.jpg",
+    "imagenes": [
+      "/images/rhode-1.jpg",
+      "/images/rhode-2.jpg"
+    ],
+    "beneficios": [
+      "Antioxidante natural",
+      "Hidratación prolongada",
+      "Aroma botánico suave"
+    ],
+    "formatos": ["10 ml"],
+    "stock": true,
+    "destacado": false
   },
   {
     "id": 6,
-    "nombre": "Aceite Corporal Nutritivo Reafirmante",
-    "descripcion": "Complejo de aceites naturales de rosa mosqueta y almendras para nutrición y firmeza.",
-    "precio": 15800,
-    "categoria": "Cuidado Corporal"
+    "nombre": "Set Especial Ritual Glow & Lip Tint",
+    "subtitulo": "Edición limitada de cuidado y brillo",
+    "descripcion": "La combinación perfecta para una piel jugosa y unos labios irresistiblemente hidratados. Incluye bálsamo con péptidos y tratamiento iluminador.",
+    "precio": 35.00,
+    "precioAnterior": 50.00,
+    "descuento": "30%",
+    "badge": "EDICIÓN ESPECIAL",
+    "categoria": "Cuidado Facial",
+    "rating": 5.0,
+    "reviewsCount": 64,
+    "imagen": "/images/hero-rhode.jpg",
+    "imagenes": [
+      "/images/hero-rhode.jpg",
+      "/images/producto-1.jpg"
+    ],
+    "beneficios": [
+      "Set de 2 productos estrella",
+      "Packaging especial para regalo",
+      "Ahorro exclusivo del 30%"
+    ],
+    "formatos": ["Set Dúo"],
+    "stock": true,
+    "destacado": false
+  },
+  {
+    "id": 7,
+    "nombre": "Lip Tint & Cheek Glow Rhode Look",
+    "subtitulo": "Tinte multiuso para labios y mejillas",
+    "descripcion": "Aporta un rubor saludable y fresco al instante. Fácil de difuminar con los dedos para conseguir un aspecto radiante y juvenil en segundos.",
+    "precio": 19.60,
+    "precioAnterior": 28.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Maquillaje",
+    "rating": 4.9,
+    "reviewsCount": 142,
+    "imagen": "/images/producto-1.jpg",
+    "imagenes": [
+      "/images/producto-1.jpg",
+      "/images/rhode-2.jpg"
+    ],
+    "beneficios": [
+      "Fórmula 2 en 1",
+      "Cobertura modulable",
+      "Acabado dewy luminoso"
+    ],
+    "formatos": ["10 ml"],
+    "stock": true,
+    "destacado": false
+  },
+  {
+    "id": 8,
+    "nombre": "Crema Anti-Age Reafirmante de Noche",
+    "subtitulo": "Regeneración celular con ceramidas",
+    "descripcion": "Fórmula nocturna con resveratrol y ceramidas que trabaja mientras duermes para restaurar la firmeza cutánea y suavizar líneas de expresión.",
+    "precio": 26.60,
+    "precioAnterior": 38.00,
+    "descuento": "30%",
+    "badge": "-30%",
+    "categoria": "Cuidado Facial",
+    "rating": 4.8,
+    "reviewsCount": 89,
+    "imagen": "/images/firming-cashmere.jpg",
+    "imagenes": [
+      "/images/firming-cashmere.jpg"
+    ],
+    "beneficios": [
+      "Efecto lifting visible",
+      "Estimula colágeno natural",
+      "Textura aterciopelada no grasa"
+    ],
+    "formatos": ["50 ml"],
+    "stock": true,
+    "destacado": false
   }
 ]

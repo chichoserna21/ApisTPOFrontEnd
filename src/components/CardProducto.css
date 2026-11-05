@@ -1,86 +1,162 @@
-.card-producto {
-  background: white;
-  border-radius: 8px;
+.alma-product-card {
+  position: relative;
+  background-color: var(--alma-surface);
+  border: 1px solid var(--alma-card-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.alma-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Badge de descuento */
+.card-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: var(--alma-badge-bg);
+  color: var(--alma-badge-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  z-index: 2;
+  letter-spacing: 0.04em;
+}
+
+/* Contenedor de Imagen */
+.card-image-link {
+  display: block;
+  width: 100%;
+}
+
+.card-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #f7f3ee;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image {
+  width: 100%;
   height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
-.card-producto:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+.alma-product-card:hover .card-image {
+  transform: scale(1.05);
 }
 
-.producto-info {
-  padding: 1.25rem;
+/* Detalles */
+.card-details {
+  padding-top: 1rem;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1;
 }
 
-.producto-categoria {
-  display: inline-block;
-  align-self: flex-start;
-  background: #007bff;
-  color: white;
-  padding: 0.3rem 0.65rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
+.card-title-link {
+  text-decoration: none;
 }
 
-.producto-nombre {
+.card-title {
+  font-family: var(--font-serif);
   font-size: 1.15rem;
   font-weight: 600;
-  color: #333;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
+  color: var(--alma-text);
+  margin-bottom: 0.25rem;
+  line-height: 1.25;
 }
 
-.producto-descripcion {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0 0 1.25rem 0;
-  line-height: 1.5;
-  flex-grow: 1;
+.card-title:hover {
+  color: var(--alma-primary);
 }
 
-.producto-footer {
+.card-subtitle {
+  font-size: 0.78rem;
+  color: var(--alma-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Rating */
+.card-rating {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.9rem;
 }
 
-.producto-precio {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ff9800;
-}
-
-.btn-agregar {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.star-icon {
+  color: var(--alma-star);
   font-size: 0.9rem;
 }
 
-.btn-agregar:hover {
-  background: #0056b3;
+.rating-val {
+  font-weight: 600;
+  color: var(--alma-text);
 }
 
-.btn-agregar:active {
-  transform: scale(0.98);
+.reviews-count {
+  color: var(--alma-text-light);
+  font-size: 0.75rem;
+}
+
+/* Footer de la tarjeta con Precios y Botón */
+.card-footer-action {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.current-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--alma-text);
+}
+
+.old-price {
+  font-size: 0.82rem;
+  color: var(--alma-text-light);
+  text-decoration: line-through;
+}
+
+.quick-add-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--alma-card-border);
+  background-color: var(--alma-surface);
+  color: var(--alma-primary);
+  font-size: 1.3rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.quick-add-btn:hover {
+  background-color: var(--alma-primary);
+  color: #ffffff;
+  border-color: var(--alma-primary);
+  transform: scale(1.08);
 }

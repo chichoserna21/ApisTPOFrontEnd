@@ -1,44 +1,165 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import './Cart.css';
 
-const Cart = () => {
-  const location = useLocation();
+const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart }) => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  // Recibimos el producto transferido desde ProductDetail si se agregó alguno
-  const itemAgregado = location.state?.producto;
-  const estaLogueado = true; // Simulación para el ejemplo
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + item.precio * (item.cantidad || 1),
+    0
+  );
+  const envioGratis = subtotal >= 50;
+  const costoEnvio = subtotal === 0 ? 0 : envioGratis ? 0 : 4.99;
+  const total = subtotal + costoEnvio;
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+
+    // VALIDACIÓN OBLIGATORIA DEL TEMARIO:
+    // Para finalizar la compra se requiere usuario autenticado con JWT
+    if (!isAuthenticated) {
+      alert('🔒 Para finalizar tu compra debes iniciar sesión o tener una cuenta activa.');
+      navigate('/login', { state: { from: { pathname: '/carrito' } } });
+      return;
+    }
+
+    onClearCart();
+    alert(`🎉 ¡Compra procesada con éxito, ${user?.nombre || user?.email}! Tu pedido ha sido confirmado. Gracias por elegir ALMA.`);
+  };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Tu Carrito de Compras</h2>
+    <div className="alma-cart-page">
+      <h1 className="cart-page-title">Tu Carrito de Compras</h1>
 
-      {/* Operador && : Muestra un cartel solo si se transfirieron datos desde la ruta previa */}
-      {itemAgregado && (
-        <div style={{ background: '#d4edda', color: '#155724', padding: '0.8rem', borderRadius: '4px', marginBottom: '1rem' }}>
-          ¡Agregaste <strong>{itemAgregado.nombre}</strong> al carrito correctamente!
-        </div>
-      )}
-
-      {/* Operador Ternario ? : Muestra un resumen o un mensaje de carrito vacío */}
-      {itemAgregado ? (
-        <div style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '6px' }}>
-          <h3>{itemAgregado.nombre}</h3>
-          <p>Categoría: {itemAgregado.categoria}</p>
-          <p>Precio: ${itemAgregado.precio}</p>
-          <button 
-            onClick={() => alert('¡Compra procesada!')} 
-            style={{ marginTop: '1rem', background: '#27ae60', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
-          >
-            Finalizar Compra
-          </button>
+      {cartItems.length === 0 ? (
+        <div className="empty-cart-card">
+          <span className="empty-cart-icon">🛍️</span>
+          <h2>Tu carrito está vacío</h2>
+          <p>Aún no has añadido productos a tu ritual de cuidado.</p>
+          <Link to="/productos" className="explore-catalog-btn">
+            Explorar catálogo
+          </Link>
         </div>
       ) : (
-        <p>El carrito está actualmente vacío.</p>
-      )}
+        <div className="cart-content-grid">
+          {/* LISTA DE ITEMS */}
+          <div className="cart-items-column">
+            {envioGratis ? (
+              <div className="free-shipping-alert success">
+                🎉 ¡Felicidades! Tienes <strong>Envío Gratis</strong> para tu pedido.
+              </div>
+            ) : (
+              <div className="free-shipping-alert warning">
+                Agrega <strong>{(50 - subtotal).toFixed(2).replace('.', ',')} €</strong> más para conseguir <strong>Envío Gratis</strong>.
+              </div>
+            )}
 
-      <button onClick={() => navigate('/productos')} style={{ marginTop: '1.5rem', display: 'block' }}>
-        Seguir comprando
-      </button>
+            <div className="cart-items-list">
+              {cartItems.map((item) => (
+                <div key={`${item.id}-${item.formato || 'std'}`} className="cart-item-row">
+                  <div className="cart-item-img-box">
+                    <img src={item.imagen} alt={item.nombre} />
+                  </div>
+
+                  <div className="cart-item-info">
+                    <span className="cart-item-category">{item.categoria}</span>
+                    <h3 className="cart-item-name">{item.nombre}</h3>
+                    {item.formato && <span className="cart-item-format">Formato: {item.formato}</span>}
+                    <span className="cart-item-unit-price">
+                      {Number(item.precio).toFixed(2).replace('.', ',')} € / unidad
+                    </span>
+                  </div>
+
+                  <div className="cart-item-controls">
+                    <div className="cart-qty-picker">
+                      <button
+                        onClick={() =>
+                          onUpdateQuantity(item.id, item.formato, (item.cantidad || 1) - 1)
+                        }
+                      >
+                        -
+                      </button>
+                      <span>{item.cantidad || 1}</span>
+                      <button
+                        onClick={() =>
+                          onUpdateQuantity(item.id, item.formato, (item.cantidad || 1) + 1)
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <span className="cart-item-total-price">
+                      {(item.precio * (item.cantidad || 1)).toFixed(2).replace('.', ',')} €
+                    </span>
+
+                    <button
+                      className="cart-remove-btn"
+                      onClick={() => onRemoveItem(item.id, item.formato)}
+                      title="Eliminar producto"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="cart-actions-footer">
+              <Link to="/productos" className="keep-shopping-link">
+                &larr; Seguir comprando
+              </Link>
+              <button onClick={onClearCart} className="clear-cart-link">
+                Vaciar carrito
+              </button>
+            </div>
+          </div>
+
+          {/* RESUMEN DE PEDIDO */}
+          <div className="cart-summary-column">
+            <div className="order-summary-box">
+              <h3>Resumen de la orden</h3>
+
+              <div className="summary-row">
+                <span>Subtotal</span>
+                <span>{subtotal.toFixed(2).replace('.', ',')} €</span>
+              </div>
+
+              <div className="summary-row">
+                <span>Envío</span>
+                <span>{envioGratis ? 'Gratis' : `${costoEnvio.toFixed(2).replace('.', ',')} €`}</span>
+              </div>
+
+              <div className="summary-divider"></div>
+
+              <div className="summary-row total-row">
+                <span>Total estimado</span>
+                <span>{total.toFixed(2).replace('.', ',')} €</span>
+              </div>
+
+              <button
+                className={`checkout-cta-btn ${!isAuthenticated ? 'requires-auth' : ''}`}
+                onClick={handleCheckout}
+              >
+                {isAuthenticated ? 'Tramitar pedido' : 'Iniciar sesión para comprar'}
+              </button>
+
+              {!isAuthenticated && (
+                <p className="auth-checkout-hint">
+                  🔒 Debes tener una sesión iniciada para finalizar tu pedido.
+                </p>
+              )}
+
+              <div className="summary-guarantees">
+                <span>🔒 Compra 100% segura y garantizada</span>
+                <span>📦 Embalaje ecológico y reciclable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

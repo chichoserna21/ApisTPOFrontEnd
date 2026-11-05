@@ -1,0 +1,205 @@
+.alma-header {
+  width: 100%;
+  background-color: var(--alma-surface);
+  border-bottom: 1px solid var(--alma-card-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Barra superior */
+.alma-top-bar {
+  background-color: var(--alma-announcement-bg);
+  color: var(--alma-announcement-text);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  text-align: center;
+}
+
+/* Barra Principal */
+.alma-main-nav {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #f3ede7;
+}
+
+.alma-nav-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.alma-logo-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+}
+
+.alma-brand-name {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--alma-text);
+  line-height: 1;
+}
+
+.alma-brand-tagline {
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--alma-text-muted);
+  margin-top: 3px;
+}
+
+/* Buscador */
+.alma-search-form {
+  position: relative;
+  flex: 1;
+  max-width: 520px;
+}
+
+.alma-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.alma-search-input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  border: 1px solid var(--alma-card-border);
+  border-radius: var(--radius-full);
+  background-color: #faf7f4;
+  font-size: 0.88rem;
+  color: var(--alma-text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.alma-search-input:focus {
+  background-color: #fff;
+  border-color: var(--alma-primary);
+  box-shadow: 0 0 0 3px rgba(148, 83, 88, 0.1);
+}
+
+/* Acciones Usuario y Carrito */
+.alma-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.alma-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--alma-text);
+  cursor: pointer;
+  position: relative;
+}
+
+.alma-action-link:hover {
+  color: var(--alma-primary);
+}
+
+.alma-logout-btn {
+  font-size: 0.75rem;
+  color: var(--alma-text-muted);
+  margin-left: 4px;
+}
+
+.alma-logout-btn:hover {
+  color: var(--alma-primary);
+}
+
+.alma-cart-link {
+  position: relative;
+}
+
+.alma-cart-badge {
+  background-color: var(--alma-primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  margin-left: 2px;
+}
+
+/* Barra de categorías */
+.alma-categories-nav {
+  padding: 0.65rem 2rem;
+  background-color: var(--alma-surface);
+}
+
+.alma-categories-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  overflow-x: auto;
+}
+
+.alma-categories-container a {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--alma-text-muted);
+  padding: 0.3rem 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.alma-categories-container a:hover,
+.alma-categories-container a.active {
+  color: var(--alma-text);
+}
+
+.alma-categories-container a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--alma-primary);
+}
+
+.alma-categories-container a.ofertas-link {
+  color: var(--alma-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .alma-nav-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .alma-search-form {
+    order: 3;
+    max-width: 100%;
+  }
+  .alma-categories-container {
+    gap: 1.2rem;
+    justify-content: flex-start;
+  }
+}
