@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleFavoriteOnServer } from '../store/accountSlice';
 import './ProductDetail.css';
 
 const titulosPorRating = {
@@ -14,7 +15,9 @@ const titulosPorRating = {
 const ProductDetail = ({ products = [], onAddToCart }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const favoriteIds = useSelector((state) => state.account.favorites);
 
   // Buscar el producto
   const product = products.find((p) => String(p.id) === String(id));
@@ -23,7 +26,8 @@ const ProductDetail = ({ products = [], onAddToCart }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedFormat, setSelectedFormat] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoritePending, setFavoritePending] = useState(false);
+  const [favoriteError, setFavoriteError] = useState('');
   const [openAccordion, setOpenAccordion] = useState('uso');
 
   // Estado para nuevas reseñas
@@ -65,10 +69,27 @@ const ProductDetail = ({ products = [], onAddToCart }) => {
 
   const gallery = product.imagenes || [product.imagen];
   const formatos = product.formatos || ['50 ml'];
+  const isFavorite = favoriteIds.includes(product.id);
 
   const handleAddToCart = () => {
     if (onAddToCart) {
       onAddToCart(product, quantity, formatos[selectedFormat]);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: { pathname: `/productos/${product.id}` } } });
+      return;
+    }
+    setFavoritePending(true);
+    setFavoriteError('');
+    try {
+      await dispatch(toggleFavoriteOnServer(product.id)).unwrap();
+    } catch (error) {
+      setFavoriteError(error);
+    } finally {
+      setFavoritePending(false);
     }
   };
 
@@ -232,11 +253,13 @@ const ProductDetail = ({ products = [], onAddToCart }) => {
             <button
               type="button"
               className={`wishlist-heart-btn ${isFavorite ? 'active' : ''}`}
-              onClick={() => setIsFavorite(!isFavorite)}
+              onClick={handleToggleFavorite}
+              disabled={favoritePending}
               title="Guardar en favoritos"
             >
               {isFavorite ? '❤️' : '🤍'}
             </button>
+            {favoriteError && <p role="alert">{favoriteError}</p>}
           </div>
 
           {/* Aviso de Envíos */}
