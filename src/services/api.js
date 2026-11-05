@@ -1,5 +1,30 @@
-// Servicio de conexión con la API de Spring Boot
 const API_BASE_URL = '/api';
+
+export const apiRequest = async (path, { token, method = 'GET', body } = {}) => {
+  const headers = {};
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {})
+  });
+
+  if (!response.ok) {
+    let message = `Error ${response.status}`;
+    try {
+      const errorData = await response.json();
+      message = errorData.message || errorData.error || message;
+    } catch {
+      message = `${message}: ${response.statusText}`;
+    }
+    throw new Error(message);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+};
 
 /**
  * Normaliza los productos devueltos por la API para asegurar
@@ -46,17 +71,7 @@ export const normalizeProduct = (p) => {
  * Obtener todos los productos desde el backend
  */
 export const fetchProductos = async () => {
-  const response = await fetch(`${API_BASE_URL}/productos`, {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error ${response.status}: no se pudo obtener los productos del backend`);
-  }
-
-  const data = await response.json();
+  const data = await apiRequest('/productos');
   return Array.isArray(data) ? data.map(normalizeProduct) : [];
 };
 
@@ -64,11 +79,7 @@ export const fetchProductos = async () => {
  * Obtener un producto por ID desde el backend
  */
 export const fetchProductoPorId = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/productos/${id}`);
-  if (!response.ok) {
-    throw new Error(`Error ${response.status}: Producto no encontrado`);
-  }
-  const data = await response.json();
+  const data = await apiRequest(`/productos/${id}`);
   return normalizeProduct(data);
 };
 
@@ -76,45 +87,25 @@ export const fetchProductoPorId = async (id) => {
  * Obtener categorías desde el backend
  */
 export const fetchCategorias = async () => {
-  const response = await fetch(`${API_BASE_URL}/categorias`);
-  if (!response.ok) {
-    throw new Error(`Error ${response.status}: no se pudo obtener las categorías`);
-  }
-  return await response.json();
+  return apiRequest('/categorias');
 };
 
 /**
  * Iniciar sesión con la API (Spring Boot /api/auth/login)
  */
 export const loginApi = async (email, password) => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  return apiRequest('/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
+    body: { email, password }
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.message || 'Credenciales incorrectas');
-  }
-
-  return await response.json();
 };
 
 /**
  * Registrar nuevo usuario con la API (Spring Boot /api/auth/register)
  */
 export const registerApi = async (userData) => {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+  return apiRequest('/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(userData)
+    body: userData
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.message || 'Error al registrar el usuario');
-  }
-
-  return await response.json();
 };
