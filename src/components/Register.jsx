@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerApi } from '../services/api';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../store/authSlice';
+import { switchCartUser } from '../store/cartSlice';
+import { loadAccountData } from '../store/accountSlice';
 import './Auth.css';
 
-const Register = ({ onRegisterSuccess }) => {
+const Register = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
@@ -12,6 +16,7 @@ const Register = ({ onRegisterSuccess }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,32 +40,21 @@ const Register = ({ onRegisterSuccess }) => {
         email,
         password
       });
+      if (!data.token) throw new Error('La API no devolvió un token de sesión válido.');
 
-      if (onRegisterSuccess) {
-        onRegisterSuccess({
-          nombre,
-          apellido,
-          email: data.email || email,
-          token: data.token,
-          rol: data.rol
-        });
-      }
-      alert('¡Cuenta creada exitosamente en ALMA!');
+      const registeredEmail = data.email || email;
+      dispatch(loginSuccess({
+        nombre,
+        apellido,
+        email: registeredEmail,
+        token: data.token,
+        rol: data.rol
+      }));
+      dispatch(switchCartUser(registeredEmail));
+      await dispatch(loadAccountData());
       navigate('/');
     } catch (err) {
-      console.warn('Registro en API falló, activando fallback local:', err.message);
-      // Fallback local
-      if (onRegisterSuccess) {
-        onRegisterSuccess({
-          nombre,
-          apellido,
-          email,
-          token: 'mock-jwt-token-alma',
-          rol: 'ROLE_USER'
-        });
-      }
-      alert('¡Cuenta creada con éxito! Bienvenido/a a ALMA.');
-      navigate('/');
+      setError(err.message || 'No se pudo crear la cuenta. Inténtalo nuevamente.');
     } finally {
       setLoading(false);
     }
