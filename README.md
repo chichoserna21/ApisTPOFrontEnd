@@ -1,16 +1,30 @@
-# React + Vite
+# ALMA — Frontend de e-commerce
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend React con Redux Toolkit, conectado a la API Spring Boot del proyecto `TPO-API-E-commerce-estetica`.
 
-Currently, two official plugins are available:
+## Desarrollo local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Iniciá el backend en `http://localhost:8080`.
+2. Desde esta carpeta, instalá dependencias con `npm install` si todavía no lo hiciste.
+3. Ejecutá `npm run dev` y abrí `http://localhost:5173`.
 
-## React Compiler
+Vite reenvía las solicitudes `/api` al backend en el puerto `8080`. Para validar el frontend, usá `npm run build` y `npm run lint`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Funcionalidades conectadas
 
-## Expanding the ESLint configuration
+- Registro e inicio de sesión con JWT; el token se envía en el encabezado `Authorization: Bearer`.
+- Catálogo y categorías desde la API.
+- Perfil, carrito y favoritos asociados a la cuenta y sincronizados desde Redux con el backend.
+- Confirmación de compra persistida como pedido; el backend valida el stock, calcula el envío y descuenta existencias.
+- El carrito de invitado se conserva localmente; el carrito de cada cuenta se persiste en el backend.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Endpoints de cuenta utilizados
+
+| Método | Endpoint | Uso |
+|---|---|---|
+| `POST` | `/api/auth/register` | Crear cuenta |
+| `POST` | `/api/auth/login` | Iniciar sesión |
+| `GET` | `/api/auth/me` | Cargar perfil |
+| `GET`, `PUT` | `/api/carrito` | Consultar y guardar carrito |
+| `GET`, `PUT` | `/api/favoritos` | Consultar y guardar favoritos |
+| `GET`, `POST` | `/api/pedidos` | Consultar pedidos y confirmar una compra |
