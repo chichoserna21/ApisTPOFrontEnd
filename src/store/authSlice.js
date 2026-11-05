@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { loadAccountData } from './accountSlice';
 
 // Cargar estado inicial de autenticación desde localStorage
 const loadAuthFromStorage = () => {
@@ -40,6 +41,11 @@ const authSlice = createSlice({
       localStorage.removeItem('alma_token');
       localStorage.removeItem('alma_user_email');
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(loadAccountData.fulfilled, (state, action) => {
+      state.user = { ...state.user, ...action.payload.profile };
+    });
   }
 });
 
