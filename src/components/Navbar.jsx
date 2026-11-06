@@ -28,14 +28,11 @@ const Navbar = () => {
   useEffect(() => {
     fetchCategorias()
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setCategorias(data);
-        } else {
-          setCategorias([{ id: 1, nombre: 'Skincare' }, { id: 2, nombre: 'Maquillaje' }]);
-        }
+        setCategorias(data);
       })
-      .catch(() => {
-        setCategorias([{ id: 1, nombre: 'Skincare' }, { id: 2, nombre: 'Maquillaje' }]);
+      .catch((error) => {
+        console.error('No se pudieron cargar las categorías desde la API:', error);
+        setCategorias([]);
       });
   }, []);
 

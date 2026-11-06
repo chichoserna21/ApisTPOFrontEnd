@@ -8,40 +8,37 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
 
   // Parámetros de URL
   const querySearch = searchParams.get('search') || '';
-  const queryCategory = searchParams.get('categoria') || '';
-
-  // Filtros locales
-  const [selectedCategories, setSelectedCategories] = useState(
-    queryCategory ? [queryCategory] : []
+  const selectedCategories = useMemo(
+    () => searchParams.getAll('categoria'),
+    [searchParams]
   );
-  const [maxPrice, setMaxPrice] = useState(50);
+
+  const [maxPrice, setMaxPrice] = useState(null);
   const [sortBy, setSortBy] = useState('relevancia');
 
-  // Categorías fijas
-  const allCategories = ['Cuidado Facial', 'Maquillaje', 'Cuerpo y Baño', 'Fragancias'];
+  const allCategories = [...new Set(products.map((product) => product.categoria).filter(Boolean))];
+  const maxAvailablePrice = products.reduce(
+    (max, product) => Math.max(max, Number(product.precio) || 0),
+    0
+  );
+  const priceLimit = maxPrice ?? maxAvailablePrice;
 
   const handleCategoryToggle = (cat) => {
-    let updated;
-    if (selectedCategories.includes(cat)) {
-      updated = selectedCategories.filter((c) => c !== cat);
-    } else {
-      updated = [...selectedCategories, cat];
-    }
-    setSelectedCategories(updated);
-    if (updated.length === 1) {
-      searchParams.set('categoria', updated[0]);
-    } else {
-      searchParams.delete('categoria');
-    }
-    setSearchParams(searchParams);
+    const updated = selectedCategories.includes(cat)
+      ? selectedCategories.filter((category) => category !== cat)
+      : [...selectedCategories, cat];
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete('categoria');
+    updated.forEach((category) => nextSearchParams.append('categoria', category));
+    setSearchParams(nextSearchParams);
   };
 
   const handleResetFilters = () => {
-    setSelectedCategories([]);
-    setMaxPrice(50);
-    searchParams.delete('search');
-    searchParams.delete('categoria');
-    setSearchParams(searchParams);
+    setMaxPrice(null);
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete('search');
+    nextSearchParams.delete('categoria');
+    setSearchParams(nextSearchParams);
   };
 
   // Filtrado y ordenamiento en memoria
@@ -61,7 +58,7 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
       }
 
       // Filtro por precio
-      if (prod.precio > maxPrice) {
+      if (maxPrice !== null && prod.precio > maxPrice) {
         return false;
       }
 
@@ -76,8 +73,8 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
 
   const pageTitle = querySearch
     ? `Resultados para "${querySearch}"`
-    : queryCategory
-    ? queryCategory
+    : selectedCategories.length > 0
+    ? selectedCategories.join(', ')
     : 'Todos los Productos';
 
   return (
@@ -87,10 +84,10 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
         <Link to="/">Inicio</Link>
         <span>&gt;</span>
         <Link to="/productos">Catálogo</Link>
-        {queryCategory && (
+        {selectedCategories.length === 1 && (
           <>
             <span>&gt;</span>
-            <span>{queryCategory}</span>
+            <span>{selectedCategories[0]}</span>
           </>
         )}
       </nav>
@@ -123,7 +120,7 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
         <aside className="catalog-sidebar">
           <div className="sidebar-header">
             <h3>Filtrar por</h3>
-            {(selectedCategories.length > 0 || maxPrice < 50 || querySearch) && (
+            {(selectedCategories.length > 0 || maxPrice !== null || querySearch) && (
               <button onClick={handleResetFilters} className="clear-filters-btn">
                 Limpiar filtros
               </button>
@@ -154,17 +151,19 @@ const ProductList = ({ products = [], loading = false, onAddToCart }) => {
             <div className="price-slider-box">
               <input
                 type="range"
-                min="10"
-                max="50"
-                step="2"
-                value={maxPrice}
+                min="0"
+                max={Math.max(maxAvailablePrice, 1)}
+                step={Math.max(1, Math.ceil(maxAvailablePrice / 100))}
+                value={priceLimit}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="price-range-input"
               />
               <div className="price-range-labels">
-                <span>10 €</span>
-                <span className="active-max-price">Hasta {maxPrice} €</span>
-                <span>50 €</span>
+                <span>0 €</span>
+                <span className="active-max-price">
+                  Hasta {Number(priceLimit).toFixed(2).replace('.', ',')} €
+                </span>
+                <span>{Number(maxAvailablePrice).toFixed(2).replace('.', ',')} €</span>
               </div>
             </div>
           </div>

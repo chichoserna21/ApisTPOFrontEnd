@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
-import { loadAccountData } from '../store/accountSlice';
 import { loginApi } from '../services/api';
 import './Auth.css';
 
@@ -44,7 +43,6 @@ const Login = () => {
         rol: data.rol
       }));
       dispatch(switchCartUser(userEmail));
-      await dispatch(loadAccountData());
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message || 'No se pudo iniciar sesión. Inténtalo nuevamente.');

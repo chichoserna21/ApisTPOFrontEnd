@@ -12,7 +12,7 @@ const normalizeCartItem = (item) => ({
   categoria: item.categoria || '',
   precio: Number(item.precio) || 0,
   cantidad: Number(item.cantidad) || 1,
-  formato: item.formato || '50 ml',
+  formato: item.formato || '',
   imagen: item.imagen || ''
 });
 
@@ -22,6 +22,7 @@ export const loadAccountData = createAsyncThunk(
     try {
       const token = getToken(getState());
       if (!token) throw new Error('Iniciá sesión para cargar los datos de tu cuenta.');
+      const cartRevision = getState().cart.revision;
       const [profile, cart, favorites, orders] = await Promise.all([
         apiRequest('/auth/me', { token }),
         apiRequest('/carrito', { token }),
@@ -33,6 +34,7 @@ export const loadAccountData = createAsyncThunk(
       }
       return {
         token,
+        cartRevision,
         profile,
         cart: cart.map(normalizeCartItem),
         favorites,
@@ -51,8 +53,8 @@ export const mutateServerCart = createAsyncThunk(
       const token = getToken(getState());
       if (!token) throw new Error('Iniciá sesión para guardar tu carrito.');
       const request = async () => {
-        const items = getState().cart.items.map((item) => ({ ...item }));
-        let nextItems = items;
+        const currentCart = await apiRequest('/carrito', { token });
+        let nextItems = currentCart.map(normalizeCartItem);
         if (operation.type === 'add') {
           const existing = nextItems.find(
             (item) => item.id === operation.product.id && item.formato === operation.formato

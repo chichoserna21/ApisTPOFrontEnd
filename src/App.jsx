@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { addToCart, updateQuantity, removeFromCart, clearCart, switchCartUser } from './store/cartSlice';
+import { addToCart, updateQuantity, removeFromCart, clearCart, replaceCartItems, switchCartUser } from './store/cartSlice';
 import { logout } from './store/authSlice';
 import { clearAccount, checkoutOrder, loadAccountData, mutateServerCart } from './store/accountSlice';
-import productsData from './data/products.json';
-import { fetchProductos, normalizeProduct } from './services/api';
+import { fetchProductos } from './services/api';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './components/Home';
@@ -28,9 +27,10 @@ function App() {
   const cartItems = useSelector((state) => state.cart.items);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { profile, favorites, orders, loading: accountLoading, error: accountError } = useSelector((state) => state.account);
+  const cartError = useSelector((state) => state.cart.syncError);
 
   // Estados locales para los productos y API
-  const [products, setProducts] = useState(productsData.map(normalizeProduct));
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
   const [backendOnline, setBackendOnline] = useState(false);
@@ -44,19 +44,19 @@ function App() {
     fetchProductos()
       .then((apiProducts) => {
         if (!isMounted) return;
-        if (apiProducts && apiProducts.length > 0) {
-          setProducts(apiProducts);
-          setBackendOnline(true);
-        } else {
-          setProducts(productsData.map(normalizeProduct));
-        }
-        setApiError(null);
+        setProducts(apiProducts);
+        setBackendOnline(true);
+        setApiError(
+          apiProducts.length === 0
+            ? 'La API respondió correctamente, pero no hay productos cargados en la base de datos.'
+            : null
+        );
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn('Backend API no disponible (usando catálogo de respaldo):', err.message);
-        setProducts(productsData.map(normalizeProduct));
-        setApiError('Backend fuera de línea (puerto 8080).');
+        console.error('No se pudo cargar el catálogo desde la API:', err);
+        setProducts([]);
+        setApiError(`No se pudo cargar el catálogo desde la API: ${err.message}`);
         setBackendOnline(false);
       })
       .finally(() => {
@@ -72,10 +72,18 @@ function App() {
     if (isAuthenticated) dispatch(loadAccountData());
   }, [dispatch, isAuthenticated]);
 
+  const syncServerCart = (operation) => {
+    dispatch(mutateServerCart(operation)).then((result) => {
+      if (mutateServerCart.fulfilled.match(result)) {
+        dispatch(replaceCartItems(result.payload));
+      }
+    });
+  };
+
   // Handlers que ahora despachan acciones a REDUX
-  const handleAddToCart = (product, quantity = 1, formato = '50 ml') => {
+  const handleAddToCart = (product, quantity = 1, formato = '') => {
     if (isAuthenticated) {
-      dispatch(mutateServerCart({ type: 'add', product, quantity, formato }));
+      syncServerCart({ type: 'add', product, quantity, formato });
     } else {
       dispatch(addToCart({ product, quantity, formato }));
     }
@@ -83,7 +91,7 @@ function App() {
 
   const handleUpdateQuantity = (id, formato, cantidad) => {
     if (isAuthenticated) {
-      dispatch(mutateServerCart({ type: 'quantity', id, formato, cantidad }));
+      syncServerCart({ type: 'quantity', id, formato, cantidad });
     } else {
       dispatch(updateQuantity({ id, formato, cantidad }));
     }
@@ -91,7 +99,7 @@ function App() {
 
   const handleRemoveItem = (id, formato) => {
     if (isAuthenticated) {
-      dispatch(mutateServerCart({ type: 'remove', id, formato }));
+      syncServerCart({ type: 'remove', id, formato });
     } else {
       dispatch(removeFromCart({ id, formato }));
     }
@@ -99,7 +107,7 @@ function App() {
 
   const handleClearCart = () => {
     if (isAuthenticated) {
-      dispatch(mutateServerCart({ type: 'clear' }));
+      syncServerCart({ type: 'clear' });
     } else {
       dispatch(clearCart());
     }
@@ -125,7 +133,7 @@ function App() {
       <div className="api-status-banner">
         {backendOnline ? (
           <span className="api-status-pill online">
-            ● API Spring Boot Conectada (http://localhost:8080)
+            ● API Spring Boot conectada · {products.length} productos cargados desde el backend
           </span>
         ) : (
           <span className="api-status-pill offline" title={apiError || ''}>
@@ -133,7 +141,9 @@ function App() {
           </span>
         )}
       </div>
+      {apiError && <p role="alert" className="auth-error-banner">{apiError}</p>}
       {accountError && <p role="alert" className="auth-error-banner">{accountError}</p>}
+      {cartError && <p role="alert" className="auth-error-banner">{cartError}</p>}
 
       {/* Contenido principal ruteado con React Router */}
       <main className="alma-main-viewport">

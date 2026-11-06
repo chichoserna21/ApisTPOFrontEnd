@@ -20,12 +20,14 @@ const CardProducto = ({ product, onAddToCart }) => {
       {/* Imagen del Producto */}
       <Link to={`/productos/${product.id}`} className="card-image-link">
         <div className="card-image-wrapper">
-          <img
-            src={product.imagen || 'https://images.unsplash.com/photo-1608248597359-2696660be01e?auto=format&fit=crop&w=600&q=80'}
-            alt={product.nombre}
-            className="card-image"
-            loading="lazy"
-          />
+          {product.imagen && (
+            <img
+              src={product.imagen}
+              alt={product.nombre}
+              className="card-image"
+              loading="lazy"
+            />
+          )}
         </div>
       </Link>
 
@@ -35,14 +37,20 @@ const CardProducto = ({ product, onAddToCart }) => {
           <h3 className="card-title">{product.nombre}</h3>
         </Link>
 
-        <p className="card-subtitle">{product.subtitulo || product.categoria}</p>
+        {(product.subtitulo || product.categoria) && (
+          <p className="card-subtitle">{product.subtitulo || product.categoria}</p>
+        )}
 
         {/* Rating con estrellas */}
-        <div className="card-rating">
-          <span className="star-icon">★</span>
-          <span className="rating-val">{product.rating || '4.8'}</span>
-          <span className="reviews-count">({product.reviewsCount || 85})</span>
-        </div>
+        {product.rating != null && (
+          <div className="card-rating">
+            <span className="star-icon">★</span>
+            <span className="rating-val">{product.rating}</span>
+            {product.reviewsCount != null && (
+              <span className="reviews-count">({product.reviewsCount})</span>
+            )}
+          </div>
+        )}
 
         {/* Precio y Botón Agregar */}
         <div className="card-footer-action">
@@ -57,6 +65,7 @@ const CardProducto = ({ product, onAddToCart }) => {
             type="button"
             className="quick-add-btn"
             onClick={handleAdd}
+            disabled={product.stock === 0}
             title="Agregar al carrito"
             aria-label="Agregar al carrito"
           >

@@ -22,9 +22,14 @@ const cartSlice = createSlice({
   initialState: {
     currentUserEmail: initialEmail,
     items: initialEmail ? [] : loadGuestCart(),
-    syncError: null
+    syncError: null,
+    revision: 0
   },
   reducers: {
+    replaceCartItems: (state, action) => {
+      state.items = action.payload;
+      state.syncError = null;
+    },
     switchCartUser: (state, action) => {
       const email = action.payload || null;
       state.currentUserEmail = email;
@@ -32,7 +37,7 @@ const cartSlice = createSlice({
       state.syncError = null;
     },
     addToCart: (state, action) => {
-      const { product, quantity = 1, formato = '50 ml' } = action.payload;
+      const { product, quantity = 1, formato = '' } = action.payload;
       const existing = state.items.find(
         (item) => item.id === product.id && item.formato === formato
       );
@@ -81,10 +86,13 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase('account/load/fulfilled', (state, action) => {
-        state.items = action.payload.cart;
+        if (state.revision === action.payload.cartRevision) {
+          state.items = action.payload.cart;
+        }
         state.syncError = null;
       })
       .addCase('account/mutateCart.pending', (state) => {
+        state.revision += 1;
         state.syncError = null;
       })
       .addCase('account/mutateCart.fulfilled', (state, action) => {
@@ -101,5 +109,12 @@ const cartSlice = createSlice({
   }
 });
 
-export const { switchCartUser, addToCart, updateQuantity, removeFromCart, clearCart } = cartSlice.actions;
+export const {
+  replaceCartItems,
+  switchCartUser,
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  clearCart
+} = cartSlice.actions;
 export default cartSlice.reducer;

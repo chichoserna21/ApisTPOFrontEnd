@@ -31,39 +31,33 @@ export const apiRequest = async (path, { token, method = 'GET', body } = {}) => 
  * compatibilidad total con la UI y mockups de ALMA.
  */
 export const normalizeProduct = (p) => {
-  const defaultImg =
-    'https://images.unsplash.com/photo-1608248597359-2696660be01e?auto=format&fit=crop&w=600&q=80';
-  
   const imagenes =
     p.imagenes && p.imagenes.length > 0
       ? p.imagenes
-      : [p.imagen || defaultImg];
+      : p.imagen
+        ? [p.imagen]
+        : [];
 
   const precio = Number(p.precio) || 0;
-  const precioAnterior = p.precioAnterior
-    ? Number(p.precioAnterior)
-    : Number((precio * 1.4).toFixed(2));
 
   return {
     id: p.id,
-    nombre: p.nombre || 'Producto ALMA',
-    subtitulo: p.subtitulo || p.categoriaNombre || p.categoria || 'Cuidado Facial',
-    descripcion: p.descripcion || 'Fórmula enriquecida para el cuidado y confort de tu piel.',
-    precio: precio,
-    precioAnterior: precioAnterior,
-    descuento: p.descuento || '30%',
-    badge: p.badge || (p.descuento ? `-${p.descuento}` : '-30%'),
-    categoria: p.categoriaNombre || p.categoria || 'Cuidado Facial',
-    rating: p.rating || 4.8,
-    reviewsCount: p.reviewsCount || 110,
+    nombre: p.nombre,
+    subtitulo: p.subtitulo,
+    descripcion: p.descripcion,
+    precio,
+    precioAnterior: p.precioAnterior == null ? null : Number(p.precioAnterior),
+    descuento: p.descuento,
+    badge: p.badge,
+    categoria: p.categoriaNombre || p.categoria,
+    rating: p.rating == null ? null : Number(p.rating),
+    reviewsCount: p.reviewsCount == null ? null : Number(p.reviewsCount),
     imagen: imagenes[0],
     imagenes: imagenes,
-    beneficios: p.beneficios || ['Hidrata 24 h', 'Todo tipo de piel', 'Fórmula vegana'],
-    formatos: p.formatos || ['50 ml', '100 ml'],
-    stock: p.stock !== undefined ? p.stock > 0 : true,
-    comoUsarlo:
-      p.comoUsarlo ||
-      'Aplica mañana y noche sobre la piel limpia con un suave masaje circular hasta su completa absorción.'
+    beneficios: p.beneficios,
+    formatos: p.formatos,
+    stock: p.stock == null ? null : Number(p.stock),
+    comoUsarlo: p.comoUsarlo
   };
 };
 
@@ -72,7 +66,10 @@ export const normalizeProduct = (p) => {
  */
 export const fetchProductos = async () => {
   const data = await apiRequest('/productos');
-  return Array.isArray(data) ? data.map(normalizeProduct) : [];
+  if (!Array.isArray(data)) {
+    throw new Error('La API devolvió un formato inválido para el catálogo.');
+  }
+  return data.map(normalizeProduct);
 };
 
 /**
@@ -87,7 +84,24 @@ export const fetchProductoPorId = async (id) => {
  * Obtener categorías desde el backend
  */
 export const fetchCategorias = async () => {
-  return apiRequest('/categorias');
+  const data = await apiRequest('/categorias');
+  if (!Array.isArray(data)) {
+    throw new Error('La API devolvió un formato inválido para las categorías.');
+  }
+  return data;
+};
+
+export const fetchOfertas = async () => {
+  const data = await apiRequest('/ofertas');
+  if (!Array.isArray(data)) {
+    throw new Error('La API devolvió un formato inválido para las ofertas.');
+  }
+  const now = Date.now();
+  return data.filter((offer) =>
+    offer.activa &&
+    new Date(offer.fechaInicio).getTime() <= now &&
+    new Date(offer.fechaFin).getTime() >= now
+  );
 };
 
 /**

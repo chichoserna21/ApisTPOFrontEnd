@@ -2,67 +2,42 @@ import { Link, useNavigate } from 'react-router-dom';
 import CardProducto from './CardProducto';
 import './Home.css';
 
-const Home = ({ products = [], onAddToCart }) => {
+const Home = ({ products = [], loading = false, onAddToCart }) => {
   const navigate = useNavigate();
 
-  // Filtrar ofertas destacadas para la grilla
-  const ofertasDestacadas = products.slice(0, 4);
-
-  const categories = [
-    {
-      nombre: 'Cuidado Facial',
-      slug: 'Cuidado+Facial',
-      imagen: '/images/firming-cashmere.jpg'
-    },
-    {
-      nombre: 'Maquillaje',
-      slug: 'Maquillaje',
-      imagen: '/images/rhode-2.jpg'
-    },
-    {
-      nombre: 'Cuerpo y Baño',
-      slug: 'Cuerpo+y+Baño',
-      imagen: '/images/producto-2.jpg'
-    },
-    {
-      nombre: 'Tratamientos',
-      slug: 'Cuidado+Facial',
-      imagen: '/images/producto-3.jpg'
-    },
-    {
-      nombre: 'Edición Especial',
-      slug: 'Cuidado+Facial',
-      imagen: '/images/producto-1.jpg'
-    }
-  ];
+  const categories = [...new Set(products.map((product) => product.categoria).filter(Boolean))]
+    .map((nombre) => ({
+      nombre,
+      imagen: products.find((product) => product.categoria === nombre && product.imagen)?.imagen
+    }));
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <div className="alma-home">
       {/* 1. HERO BANNER */}
       <section className="alma-hero-section">
         <div className="hero-content">
-          <span className="hero-pill">TU RITUAL POR MENOS</span>
-          <h1 className="hero-title">30% OFF<br />en Skincare</h1>
+          <span className="hero-pill">CATÁLOGO ALMA</span>
+          <h1 className="hero-title">Encuentra<br />tu ritual</h1>
           <p className="hero-description">
             Dale a tu piel el cuidado que merece. Encuentra tus favoritos a un precio especial.
           </p>
-          <Link to="/ofertas" className="hero-cta-btn">
-            Descubrir ofertas &rarr;
+          <Link to="/productos" className="hero-cta-btn">
+            Ver productos &rarr;
           </Link>
         </div>
 
-        <div className="hero-visual">
-          <div className="hero-image-wrapper">
-            <img
-              src="/images/hero-rhode.jpg"
-              alt="Skincare ALMA 30% OFF"
-              className="hero-img"
-            />
-            <div className="hero-badge-circle">
-              <span>Piel feliz</span>
+        {products[0]?.imagen && (
+          <div className="hero-visual">
+            <div className="hero-image-wrapper">
+              <img
+                src={products[0].imagen}
+                alt={products[0].nombre}
+                className="hero-img"
+              />
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* 2. TU RITUAL EMPIEZA AQUÍ (Categorías circulares) */}
@@ -77,11 +52,11 @@ const Home = ({ products = [], onAddToCart }) => {
             <div
               key={cat.nombre}
               className="circle-category-item"
-              onClick={() => navigate(`/productos?categoria=${cat.slug}`)}
+              onClick={() => navigate(`/productos?categoria=${encodeURIComponent(cat.nombre)}`)}
             >
-              <div className="circle-image-wrapper">
+              {cat.imagen && <div className="circle-image-wrapper">
                 <img src={cat.imagen} alt={cat.nombre} />
-              </div>
+              </div>}
               <span className="circle-category-name">{cat.nombre}</span>
             </div>
           ))}
@@ -92,9 +67,9 @@ const Home = ({ products = [], onAddToCart }) => {
       <section className="alma-featured-offers-section">
         <div className="section-header-split">
           <div>
-            <h2 className="section-title">Ofertas Destacadas</h2>
+            <h2 className="section-title">Productos del catálogo</h2>
             <p className="section-subtitle">
-              Pequeños rituales. Grandes favoritos. Todos con un 30% de descuento.
+              Productos cargados desde el backend.
             </p>
           </div>
           <Link to="/ofertas" className="view-all-link">
@@ -102,15 +77,21 @@ const Home = ({ products = [], onAddToCart }) => {
           </Link>
         </div>
 
-        <div className="alma-products-grid">
-          {ofertasDestacadas.map((product) => (
-            <CardProducto
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <p>Cargando productos desde la API...</p>
+        ) : featuredProducts.length === 0 ? (
+          <p>No hay productos disponibles en el catálogo del backend.</p>
+        ) : (
+          <div className="alma-products-grid">
+            {featuredProducts.map((product) => (
+              <CardProducto
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
