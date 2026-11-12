@@ -132,6 +132,14 @@ const Navbar = () => {
           >
             Ofertas
           </NavLink>
+          {isAuthenticated && user?.rol === 'ROLE_ADMIN' && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+            >
+              Administración
+            </NavLink>
+          )}
         </div>
       </nav>
     </header>
