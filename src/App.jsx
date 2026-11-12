@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { addToCart, updateQuantity, removeFromCart, clearCart, replaceCartItems, switchCartUser } from './store/cartSlice';
+import { addToCart, updateQuantity, removeFromCart, clearCart, switchCartUser } from './store/cartSlice';
 import { logout } from './store/authSlice';
 import { clearAccount, checkoutOrder, loadAccountData, mutateServerCart } from './store/accountSlice';
 import { fetchProductos } from './services/api';
@@ -18,10 +18,12 @@ import Register from './components/Register';
 import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
+import AdminDashboard from './components/AdminDashboard';
 import './App.css';
 
 function App() {
   const dispatch = useDispatch();
+  const cartMutationQueue = useRef(Promise.resolve(null));
 
   // Estados de Redux
   const cartItems = useSelector((state) => state.cart.items);
@@ -73,11 +75,9 @@ function App() {
   }, [dispatch, isAuthenticated]);
 
   const syncServerCart = (operation) => {
-    dispatch(mutateServerCart(operation)).then((result) => {
-      if (mutateServerCart.fulfilled.match(result)) {
-        dispatch(replaceCartItems(result.payload));
-      }
-    });
+    const result = cartMutationQueue.current.then(() => dispatch(mutateServerCart(operation)));
+    cartMutationQueue.current = result.catch(() => null);
+    return result;
   };
 
   // Handlers que ahora despachan acciones a REDUX
@@ -120,7 +120,27 @@ function App() {
   };
 
   const handleCheckout = async () => {
+    const lastCartMutation = await cartMutationQueue.current;
+    if (lastCartMutation && mutateServerCart.rejected.match(lastCartMutation)) {
+      throw new Error(lastCartMutation.payload || lastCartMutation.error.message);
+    }
+
     const order = await dispatch(checkoutOrder()).unwrap();
+    try {
+      const updatedProducts = await fetchProductos();
+      setProducts(updatedProducts);
+      setBackendOnline(true);
+      setApiError(
+        updatedProducts.length === 0
+          ? 'El pedido se confirmó, pero la API no devolvió productos para actualizar el catálogo.'
+          : null
+      );
+    } catch (error) {
+      console.error('El pedido se confirmó, pero no se pudo actualizar el catálogo:', error);
+      setApiError(
+        `El pedido #${order.id} se confirmó, pero no se pudo actualizar el catálogo: ${error.message}`
+      );
+    }
     return order;
   };
 
@@ -223,6 +243,31 @@ function App() {
                   user={{ ...user, ...profile }}
                   orders={orders}
                   onLogout={handleLogout}
+                />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute
+                isAuthenticated={isAuthenticated}
+                userRole={user?.rol}
+                requiredRole="ROLE_ADMIN"
+                checkingRole={
+                  accountLoading ||
+                  (isAuthenticated && !user?.rol && !accountError)
+                }
+              >
+                <AdminDashboard
+                  token={user?.token}
+                  onProductsChanged={async () => {
+                    const updatedProducts = await fetchProductos();
+                    setProducts(updatedProducts);
+                    setBackendOnline(true);
+                    setApiError(null);
+                  }}
                 />
               </ProtectedRoute>
             }
