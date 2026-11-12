@@ -26,6 +26,13 @@ export const apiRequest = async (path, { token, method = 'GET', body } = {}) => 
   return response.json();
 };
 
+export const adminApiRequest = (path, options = {}) => {
+  if (!options.token) {
+    throw new Error('Iniciá sesión como administrador para realizar esta acción.');
+  }
+  return apiRequest(path, options);
+};
+
 /**
  * Normaliza los productos devueltos por la API para asegurar
  * compatibilidad total con la UI y mockups de ALMA.
