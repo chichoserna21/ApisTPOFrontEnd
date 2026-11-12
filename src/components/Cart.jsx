@@ -10,6 +10,7 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { checkoutLoading, checkoutError } = useSelector((state) => state.account);
   const cartError = useSelector((state) => state.cart.syncError);
+  const cartSyncPending = useSelector((state) => state.cart.syncPending);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.precio * (item.cantidad || 1),
@@ -22,6 +23,7 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
     setCheckoutFailure('');
+    setCheckoutSuccess('');
 
     // VALIDACIÓN OBLIGATORIA DEL TEMARIO:
     // Para finalizar la compra se requiere usuario autenticado con JWT
@@ -43,7 +45,9 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
   return (
     <div className="alma-cart-page">
       <h1 className="cart-page-title">Tu Carrito de Compras</h1>
-      {checkoutSuccess && <p role="status">{checkoutSuccess}</p>}
+      {checkoutSuccess && (
+        <p role="status" className="cart-checkout-success">{checkoutSuccess}</p>
+      )}
       {checkoutFailure && <p role="alert" className="auth-error-banner">{checkoutFailure}</p>}
       {(cartError || checkoutError) && (
         <p role="alert" className="auth-error-banner">{cartError || checkoutError}</p>
@@ -158,9 +162,17 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
               <button
                 className={`checkout-cta-btn ${!isAuthenticated ? 'requires-auth' : ''}`}
                 onClick={handleCheckout}
-                disabled={checkoutLoading}
+                disabled={checkoutLoading || cartSyncPending > 0 || Boolean(cartError)}
               >
-                {checkoutLoading ? 'Confirmando pedido...' : isAuthenticated ? 'Tramitar pedido' : 'Iniciar sesión para comprar'}
+                {checkoutLoading
+                  ? 'Confirmando pedido...'
+                  : cartSyncPending > 0
+                    ? 'Guardando carrito...'
+                    : cartError
+                      ? 'Revisá el carrito'
+                    : isAuthenticated
+                      ? 'Tramitar pedido'
+                      : 'Iniciar sesión para comprar'}
               </button>
 
               {!isAuthenticated && (
