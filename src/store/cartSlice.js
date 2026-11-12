@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { checkoutOrder, loadAccountData, mutateServerCart } from './accountSlice';
 
 const initialEmail = typeof window !== 'undefined' ? localStorage.getItem('alma_user_email') : null;
 
@@ -23,13 +24,10 @@ const cartSlice = createSlice({
     currentUserEmail: initialEmail,
     items: initialEmail ? [] : loadGuestCart(),
     syncError: null,
+    syncPending: 0,
     revision: 0
   },
   reducers: {
-    replaceCartItems: (state, action) => {
-      state.items = action.payload;
-      state.syncError = null;
-    },
     switchCartUser: (state, action) => {
       const email = action.payload || null;
       state.currentUserEmail = email;
@@ -85,24 +83,27 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase('account/load/fulfilled', (state, action) => {
+      .addCase(loadAccountData.fulfilled, (state, action) => {
         if (state.revision === action.payload.cartRevision) {
           state.items = action.payload.cart;
         }
         state.syncError = null;
       })
-      .addCase('account/mutateCart.pending', (state) => {
+      .addCase(mutateServerCart.pending, (state) => {
         state.revision += 1;
+        state.syncPending += 1;
         state.syncError = null;
       })
-      .addCase('account/mutateCart.fulfilled', (state, action) => {
+      .addCase(mutateServerCart.fulfilled, (state, action) => {
+        state.syncPending = Math.max(0, state.syncPending - 1);
         state.items = action.payload;
         state.syncError = null;
       })
-      .addCase('account/mutateCart.rejected', (state, action) => {
+      .addCase(mutateServerCart.rejected, (state, action) => {
+        state.syncPending = Math.max(0, state.syncPending - 1);
         state.syncError = action.payload || action.error.message;
       })
-      .addCase('account/checkout.fulfilled', (state) => {
+      .addCase(checkoutOrder.fulfilled, (state) => {
         state.items = [];
         state.syncError = null;
       });
@@ -110,7 +111,6 @@ const cartSlice = createSlice({
 });
 
 export const {
-  replaceCartItems,
   switchCartUser,
   addToCart,
   updateQuantity,
