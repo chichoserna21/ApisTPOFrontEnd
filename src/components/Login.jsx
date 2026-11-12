@@ -1,53 +1,37 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearLoginError, loginUser } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
-import { loginApi } from '../services/api';
 import './Auth.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [validationError, setValidationError] = useState('');
+  const loginError = useSelector((state) => state.auth.loginError);
+  const loading = useSelector((state) => state.auth.loginLoading);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const destination = location.state?.from?.pathname || '/';
+  const destination = location.state?.from?.pathname;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(clearLoginError());
     if (!email || !password) {
-      setError('Por favor completa todos los campos.');
+      setValidationError('Por favor completa todos los campos.');
       return;
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      // 1. LLAMADA REAL AL ENDPOINT POST /api/auth/login DE SPRING BOOT
-      const data = await loginApi(email, password);
-      if (!data.token) throw new Error('La API no devolvió un token de sesión válido.');
-      
-      // 2. GUARDAR EN EL STORE DE REDUX
-      const userEmail = data.email || email;
-      dispatch(loginSuccess({
-        email: userEmail,
-        nombre: data.nombre || userEmail.split('@')[0],
-        apellido: data.apellido || '',
-        token: data.token,
-        rol: data.rol
-      }));
-      dispatch(switchCartUser(userEmail));
-      navigate(destination, { replace: true });
-    } catch (err) {
-      setError(err.message || 'No se pudo iniciar sesión. Inténtalo nuevamente.');
-    } finally {
-      setLoading(false);
+    setValidationError('');
+    const result = await dispatch(loginUser({ email, password }));
+    if (loginUser.fulfilled.match(result)) {
+      const user = result.payload;
+      dispatch(switchCartUser(user.email));
+      navigate(destination || (user.rol === 'ROLE_ADMIN' ? '/admin' : '/'), { replace: true });
     }
   };
 
@@ -75,7 +59,9 @@ const Login = () => {
           <h1 className="auth-title">Qué bueno verte.</h1>
           <p className="auth-subtitle">Inicia sesión y sigue disfrutando de tus favoritos.</p>
 
-          {error && <div className="auth-error-banner">{error}</div>}
+          {(validationError || loginError) && (
+            <div className="auth-error-banner">{validationError || loginError}</div>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="auth-field">
