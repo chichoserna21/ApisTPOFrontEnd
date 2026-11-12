@@ -189,6 +189,11 @@
   font-weight: 600;
 }
 
+.alma-categories-container a.admin-link {
+  color: var(--alma-primary);
+  font-weight: 700;
+}
+
 @media (max-width: 768px) {
   .alma-nav-container {
     flex-wrap: wrap;
