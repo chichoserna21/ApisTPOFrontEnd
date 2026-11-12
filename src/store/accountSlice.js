@@ -141,13 +141,18 @@ export const checkoutOrder = createAsyncThunk(
   'account/checkout',
   async (_, { getState, rejectWithValue }) => {
     try {
-      const token = getToken(getState());
-      if (!token) throw new Error('Iniciá sesión para confirmar el pedido.');
-      const order = await apiRequest('/pedidos', { token, method: 'POST' });
-      if (getToken(getState()) !== token) {
-        throw new Error('La sesión cambió mientras se confirmaba el pedido.');
-      }
-      return order;
+      const request = async () => {
+        const token = getToken(getState());
+        if (!token) throw new Error('Iniciá sesión para confirmar el pedido.');
+        const order = await apiRequest('/pedidos', { token, method: 'POST' });
+        if (getToken(getState()) !== token) {
+          throw new Error('La sesión cambió mientras se confirmaba el pedido.');
+        }
+        return order;
+      };
+      const result = cartSyncQueue.then(request, request);
+      cartSyncQueue = result.catch(() => undefined);
+      return await result;
     } catch (error) {
       return rejectWithValue(error.message);
     }
