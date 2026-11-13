@@ -1,0 +1,269 @@
+.purchase-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(44, 39, 39, 0.45);
+  backdrop-filter: blur(3px);
+  animation: purchase-fade-in 0.2s ease-out;
+}
+
+.purchase-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  padding: 2.5rem 2rem 2rem;
+  border-radius: var(--radius-lg);
+  background: var(--alma-surface);
+  box-shadow: 0 24px 60px rgba(44, 39, 39, 0.22);
+  text-align: center;
+  animation: purchase-pop-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.purchase-modal-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  color: var(--alma-text-light);
+  font-size: 0.9rem;
+}
+
+.purchase-modal-close:hover {
+  background: var(--alma-secondary);
+  color: var(--alma-text);
+}
+
+/* Ícono */
+.purchase-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--alma-badge-bg);
+}
+
+.purchase-modal-icon svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--alma-primary);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.purchase-modal-login .purchase-modal-icon svg {
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.6;
+}
+
+.purchase-check-circle {
+  stroke-width: 2;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: purchase-draw 0.6s ease-out 0.15s forwards;
+}
+
+.purchase-check-mark {
+  stroke-width: 3;
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: purchase-draw 0.35s ease-out 0.7s forwards;
+}
+
+/* Textos */
+.purchase-modal-eyebrow {
+  margin-bottom: 0.35rem;
+  color: var(--alma-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.purchase-modal h2 {
+  margin-bottom: 0.6rem;
+  color: var(--alma-text);
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.purchase-modal-text {
+  margin: 0 auto 1.5rem;
+  max-width: 340px;
+  color: var(--alma-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Resumen del pedido */
+.purchase-order-card {
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--alma-card-border);
+  border-radius: var(--radius-md);
+  background: var(--alma-bg);
+  text-align: left;
+}
+
+.purchase-order-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  color: var(--alma-text-muted);
+  font-size: 0.78rem;
+}
+
+.purchase-order-status {
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: var(--alma-badge-bg);
+  color: var(--alma-badge-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.purchase-order-items {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px dashed var(--alma-card-border);
+  list-style: none;
+}
+
+.purchase-order-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  color: var(--alma-text);
+  font-size: 0.86rem;
+}
+
+.purchase-item-name small {
+  margin-left: 0.4rem;
+  color: var(--alma-text-light);
+  font-size: 0.78rem;
+}
+
+.purchase-order-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.2rem 0;
+  color: var(--alma-text-muted);
+  font-size: 0.84rem;
+}
+
+.purchase-order-total {
+  margin-top: 0.35rem;
+  color: var(--alma-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Botones */
+.purchase-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.purchase-btn-primary,
+.purchase-btn-secondary {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.purchase-btn-primary {
+  background: var(--alma-primary);
+  color: #fff;
+}
+
+.purchase-btn-primary:hover {
+  background: var(--alma-primary-hover);
+}
+
+.purchase-btn-secondary {
+  border: 1px solid var(--alma-primary);
+  color: var(--alma-primary);
+}
+
+.purchase-btn-secondary:hover {
+  background: var(--alma-badge-bg);
+}
+
+.purchase-btn-primary:focus-visible,
+.purchase-btn-secondary:focus-visible,
+.purchase-btn-link:focus-visible,
+.purchase-modal-close:focus-visible {
+  outline: 2px solid var(--alma-primary);
+  outline-offset: 2px;
+}
+
+.purchase-btn-link {
+  margin-top: 0.9rem;
+  color: var(--alma-text-muted);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.purchase-btn-link:hover {
+  color: var(--alma-text);
+}
+
+@keyframes purchase-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes purchase-pop-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes purchase-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 480px) {
+  .purchase-modal {
+    padding: 2.25rem 1.25rem 1.5rem;
+  }
+
+  .purchase-modal h2 {
+    font-size: 1.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .purchase-modal-backdrop,
+  .purchase-modal {
+    animation: none;
+  }
+
+  .purchase-check-circle,
+  .purchase-check-mark {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

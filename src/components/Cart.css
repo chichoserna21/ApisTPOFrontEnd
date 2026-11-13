@@ -11,17 +11,6 @@
   font-weight: 500;
 }
 
-.cart-checkout-success {
-  margin-bottom: 1.25rem;
-  padding: 0.9rem 1.2rem;
-  border: 1px solid #c8e6c9;
-  border-radius: var(--radius-sm);
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 /* Empty cart */
 .empty-cart-card {
   text-align: center;

@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import PurchaseModal from './PurchaseModal';
 import './Cart.css';
 
 const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onCheckout }) => {
   const navigate = useNavigate();
-  const [checkoutSuccess, setCheckoutSuccess] = useState('');
+  // Modal de compra: { variant: 'success', order } | { variant: 'login' } | null
+  const [purchaseModal, setPurchaseModal] = useState(null);
   const [checkoutFailure, setCheckoutFailure] = useState('');
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { checkoutLoading, checkoutError } = useSelector((state) => state.account);
@@ -23,31 +25,40 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
     setCheckoutFailure('');
-    setCheckoutSuccess('');
 
     // VALIDACIÓN OBLIGATORIA DEL TEMARIO:
     // Para finalizar la compra se requiere usuario autenticado con JWT
     if (!isAuthenticated) {
-      alert('🔒 Para finalizar tu compra debes iniciar sesión o tener una cuenta activa.');
-      navigate('/login', { state: { from: { pathname: '/carrito' } } });
+      setPurchaseModal({ variant: 'login' });
       return;
     }
 
     try {
       const order = await onCheckout();
-      setCheckoutSuccess(`Pedido #${order.id} confirmado correctamente.`);
+      setPurchaseModal({ variant: 'success', order });
     } catch (error) {
-      setCheckoutSuccess('');
       setCheckoutFailure(error.message || 'No se pudo confirmar el pedido.');
     }
+  };
+
+  const closePurchaseModal = useCallback(() => setPurchaseModal(null), []);
+
+  const handleModalPrimary = () => {
+    const { variant } = purchaseModal;
+    setPurchaseModal(null);
+    if (variant === 'success') navigate('/perfil');
+    else navigate('/login', { state: { from: { pathname: '/carrito' } } });
+  };
+
+  const handleModalSecondary = () => {
+    const { variant } = purchaseModal;
+    setPurchaseModal(null);
+    navigate(variant === 'success' ? '/productos' : '/registro');
   };
 
   return (
     <div className="alma-cart-page">
       <h1 className="cart-page-title">Tu Carrito de Compras</h1>
-      {checkoutSuccess && (
-        <p role="status" className="cart-checkout-success">{checkoutSuccess}</p>
-      )}
       {checkoutFailure && <p role="alert" className="auth-error-banner">{checkoutFailure}</p>}
       {(cartError || checkoutError) && (
         <p role="alert" className="auth-error-banner">{cartError || checkoutError}</p>
@@ -188,6 +199,16 @@ const Cart = ({ cartItems = [], onUpdateQuantity, onRemoveItem, onClearCart, onC
             </div>
           </div>
         </div>
+      )}
+
+      {purchaseModal && (
+        <PurchaseModal
+          variant={purchaseModal.variant}
+          order={purchaseModal.order}
+          onClose={closePurchaseModal}
+          onPrimary={handleModalPrimary}
+          onSecondary={handleModalSecondary}
+        />
       )}
     </div>
   );
