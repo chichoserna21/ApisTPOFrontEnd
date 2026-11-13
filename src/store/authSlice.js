@@ -1,25 +1,16 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { loadAccountData } from './accountSlice';
-import { loginApi } from '../services/api';
+import { getCurrentUserApi, loginApi, logoutApi } from '../services/api';
 
-// Cargar estado inicial de autenticación desde localStorage
-const loadAuthFromStorage = () => {
-  try {
-    const token = localStorage.getItem('alma_token');
-    const email = localStorage.getItem('alma_user_email');
-    const rol = localStorage.getItem('alma_user_role');
-    if (token && email) {
-      return {
-        user: { email, nombre: email.split('@')[0], token, rol },
-        isAuthenticated: true
-      };
-    }
-  } catch {
-    // Ignorar error
-  }
+const normalizeUser = (data, fallbackEmail = '') => {
+  const email = data?.email || fallbackEmail;
+  if (!email) throw new Error('La API no devolvió un perfil de usuario válido.');
   return {
-    user: null,
-    isAuthenticated: false
+    id: data?.id,
+    email,
+    nombre: data?.nombre || email.split('@')[0],
+    apellido: data?.apellido || '',
+    rol: data?.rol
   };
 };
 
@@ -27,62 +18,79 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const data = await loginApi(email, password);
-      if (!data.token) {
-        throw new Error('La API no devolvió un token de sesión válido.');
-      }
-
-      const userEmail = data.email || email;
-      return {
-        email: userEmail,
-        nombre: data.nombre || userEmail.split('@')[0],
-        apellido: data.apellido || '',
-        token: data.token,
-        rol: data.rol
-      };
+      await loginApi(email, password);
+      return normalizeUser(await getCurrentUserApi(), email);
     } catch (error) {
       return rejectWithValue(error.message || 'No se pudo iniciar sesión. Inténtalo nuevamente.');
     }
   }
 );
 
-const saveAuthenticatedUser = (state, user) => {
+export const restoreSession = createAsyncThunk(
+  'auth/restoreSession',
+  async (_, { rejectWithValue }) => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('alma_token');
+        window.localStorage.removeItem('alma_user_email');
+        window.localStorage.removeItem('alma_user_role');
+      }
+    } catch (error) {
+      console.error('No se pudo eliminar la sesión JWT antigua del almacenamiento local:', error);
+    }
+
+    try {
+      return normalizeUser(await getCurrentUserApi());
+    } catch (error) {
+      if (error.status === 401) return null;
+      return rejectWithValue(error.message || 'No se pudo verificar la sesión.');
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { sessionInitialized, sessionLoading } = getState().auth;
+      return !sessionInitialized && !sessionLoading;
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      if (error.status === 401) return;
+      return rejectWithValue(error.message || 'No se pudo cerrar la sesión.');
+    }
+  }
+);
+
+const setAuthenticatedUser = (state, user) => {
   state.user = user;
-  state.isAuthenticated = true;
-  if (user?.token) {
-    localStorage.setItem('alma_token', user.token);
-  }
-  if (user?.email) {
-    localStorage.setItem('alma_user_email', user.email);
-  }
-  if (user?.rol) {
-    localStorage.setItem('alma_user_role', user.rol);
-  } else {
-    localStorage.removeItem('alma_user_role');
-  }
+  state.isAuthenticated = Boolean(user);
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    ...loadAuthFromStorage(),
+    user: null,
+    isAuthenticated: false,
+    sessionInitialized: false,
+    sessionLoading: false,
+    sessionError: null,
     loginLoading: false,
-    loginError: null
+    loginError: null,
+    logoutError: null
   },
   reducers: {
     loginSuccess: (state, action) => {
-      saveAuthenticatedUser(state, action.payload);
+      setAuthenticatedUser(state, action.payload);
+      state.sessionInitialized = true;
+      state.sessionLoading = false;
+      state.sessionError = null;
       state.loginLoading = false;
       state.loginError = null;
-    },
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.loginLoading = false;
-      state.loginError = null;
-      localStorage.removeItem('alma_token');
-      localStorage.removeItem('alma_user_email');
-      localStorage.removeItem('alma_user_role');
     },
     clearLoginError: (state) => {
       state.loginError = null;
@@ -95,7 +103,10 @@ const authSlice = createSlice({
         state.loginError = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        saveAuthenticatedUser(state, action.payload);
+        setAuthenticatedUser(state, action.payload);
+        state.sessionInitialized = true;
+        state.sessionLoading = false;
+        state.sessionError = null;
         state.loginLoading = false;
         state.loginError = null;
       })
@@ -103,11 +114,42 @@ const authSlice = createSlice({
         state.loginLoading = false;
         state.loginError = action.payload || action.error.message;
       })
+      .addCase(restoreSession.pending, (state) => {
+        state.sessionLoading = true;
+        state.sessionError = null;
+      })
+      .addCase(restoreSession.fulfilled, (state, action) => {
+        state.sessionLoading = false;
+        state.sessionInitialized = true;
+        setAuthenticatedUser(state, action.payload);
+      })
+      .addCase(restoreSession.rejected, (state, action) => {
+        state.sessionLoading = false;
+        state.sessionInitialized = true;
+        state.sessionError = action.payload || action.error.message;
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.logoutError = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+        state.sessionInitialized = true;
+        state.sessionLoading = false;
+        state.loginLoading = false;
+        state.loginError = null;
+        state.logoutError = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.logoutError = action.payload || action.error.message;
+      })
       .addCase(loadAccountData.fulfilled, (state, action) => {
-        state.user = { ...state.user, ...action.payload.profile };
+        if (state.user) {
+          state.user = normalizeUser({ ...state.user, ...action.payload.profile });
+        }
       });
   }
 });
 
-export const { loginSuccess, logout, clearLoginError } = authSlice.actions;
+export const { loginSuccess, clearLoginError } = authSlice.actions;
 export default authSlice.reducer;

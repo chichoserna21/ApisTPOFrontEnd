@@ -12,7 +12,7 @@ Vite reenvía las solicitudes `/api` al backend en el puerto `8080`. Para valida
 
 ## Funcionalidades conectadas
 
-- Registro e inicio de sesión con JWT; el token se envía en el encabezado `Authorization: Bearer`.
+- Registro e inicio de sesión con JWT en una cookie `HttpOnly`; el frontend no almacena ni lee el token.
 - Catálogo y categorías desde la API.
 - Perfil, carrito y favoritos asociados a la cuenta y sincronizados desde Redux con el backend.
 - Confirmación de compra persistida como pedido; el backend valida el stock, calcula el envío y descuenta existencias.
@@ -24,6 +24,7 @@ Vite reenvía las solicitudes `/api` al backend en el puerto `8080`. Para valida
 |---|---|---|
 | `POST` | `/api/auth/register` | Crear cuenta |
 | `POST` | `/api/auth/login` | Iniciar sesión |
+| `POST` | `/api/auth/logout` | Cerrar sesión y eliminar la cookie |
 | `GET` | `/api/auth/me` | Cargar perfil |
 | `GET`, `PUT` | `/api/carrito` | Consultar y guardar carrito |
 | `GET`, `PUT` | `/api/favoritos` | Consultar y guardar favoritos |

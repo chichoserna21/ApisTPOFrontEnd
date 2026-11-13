@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerApi } from '../services/api';
+import { getCurrentUserApi, registerApi } from '../services/api';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
@@ -34,21 +34,20 @@ const Register = () => {
 
     try {
       // Llamada real al backend Spring Boot
-      const data = await registerApi({
+      await registerApi({
         nombre,
         apellido,
         email,
         password
       });
-      if (!data.token) throw new Error('La API no devolvió un token de sesión válido.');
+      const profile = await getCurrentUserApi();
 
-      const registeredEmail = data.email || email;
+      const registeredEmail = profile.email || email;
       dispatch(loginSuccess({
-        nombre,
-        apellido,
+        nombre: profile.nombre || nombre,
+        apellido: profile.apellido || apellido,
         email: registeredEmail,
-        token: data.token,
-        rol: data.rol
+        rol: profile.rol
       }));
       dispatch(switchCartUser(registeredEmail));
       await dispatch(loadAccountData());

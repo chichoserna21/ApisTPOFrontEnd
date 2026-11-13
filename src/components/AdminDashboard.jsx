@@ -43,13 +43,13 @@ const formatDateTime = (value) => {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString('es-AR');
 };
 
-const loadAdminData = (token) => Promise.all([
-  adminApiRequest('/productos', { token }),
-  adminApiRequest('/categorias', { token }),
-  adminApiRequest('/ofertas', { token })
+const loadAdminData = () => Promise.all([
+  adminApiRequest('/productos'),
+  adminApiRequest('/categorias'),
+  adminApiRequest('/ofertas')
 ]);
 
-const AdminDashboard = ({ token, onProductsChanged }) => {
+const AdminDashboard = ({ onProductsChanged }) => {
   const [activeSection, setActiveSection] = useState('productos');
   const [data, setData] = useState({ productos: [], ofertas: [], categorias: [] });
   const [form, setForm] = useState(emptyForm('productos'));
@@ -61,10 +61,7 @@ const AdminDashboard = ({ token, onProductsChanged }) => {
 
   useEffect(() => {
     let active = true;
-    const request = token
-      ? loadAdminData(token)
-      : Promise.reject(new Error('No se encontró una sesión válida. Iniciá sesión nuevamente.'));
-    request
+    loadAdminData()
       .then(([productos, categorias, ofertas]) => {
         if (!active) return;
         setData({ productos, categorias, ofertas });
@@ -80,7 +77,7 @@ const AdminDashboard = ({ token, onProductsChanged }) => {
     return () => {
       active = false;
     };
-  }, [token]);
+  }, []);
 
   const resetForm = (section = activeSection) => {
     setForm(emptyForm(section));
@@ -95,7 +92,7 @@ const AdminDashboard = ({ token, onProductsChanged }) => {
   };
 
   const refreshData = async (refreshProducts = false) => {
-    const [productos, categorias, ofertas] = await loadAdminData(token);
+    const [productos, categorias, ofertas] = await loadAdminData();
     setData({ productos, categorias, ofertas });
     if (refreshProducts) await onProductsChanged();
   };
@@ -164,7 +161,6 @@ const AdminDashboard = ({ token, onProductsChanged }) => {
     try {
       const path = `/${activeSection}${editingId ? `/${editingId}` : ''}`;
       await adminApiRequest(path, {
-        token,
         method: editingId ? 'PUT' : 'POST',
         body
       });
@@ -187,7 +183,6 @@ const AdminDashboard = ({ token, onProductsChanged }) => {
     setNotice('');
     try {
       await adminApiRequest(`/${activeSection}/${item.id}`, {
-        token,
         method: 'DELETE'
       });
       await refreshData(activeSection === 'productos');

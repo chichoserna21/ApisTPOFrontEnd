@@ -10,9 +10,14 @@ const ProtectedRoute = ({
   isAuthenticated,
   userRole,
   requiredRole,
-  checkingRole = false
+  checkingRole = false,
+  checkingSession = false
 }) => {
   const location = useLocation();
+
+  if (checkingSession) {
+    return <p className="protected-route-loading">Verificando sesión...</p>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;

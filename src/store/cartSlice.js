@@ -1,8 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { checkoutOrder, loadAccountData, mutateServerCart } from './accountSlice';
 
-const initialEmail = typeof window !== 'undefined' ? localStorage.getItem('alma_user_email') : null;
-
 const loadGuestCart = () => {
   try {
     const saved = localStorage.getItem('alma_cart_guest');
@@ -21,8 +19,8 @@ const persistGuestCart = (state) => {
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
-    currentUserEmail: initialEmail,
-    items: initialEmail ? [] : loadGuestCart(),
+    currentUserEmail: null,
+    items: loadGuestCart(),
     syncError: null,
     syncPending: 0,
     revision: 0

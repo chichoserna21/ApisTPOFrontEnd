@@ -1,13 +1,13 @@
 const API_BASE_URL = '/api';
 
-export const apiRequest = async (path, { token, method = 'GET', body } = {}) => {
+export const apiRequest = async (path, { method = 'GET', body } = {}) => {
   const headers = {};
   if (body !== undefined) headers['Content-Type'] = 'application/json';
-  if (token) headers.Authorization = `Bearer ${token}`;
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
+    credentials: 'include',
     ...(body !== undefined ? { body: JSON.stringify(body) } : {})
   });
 
@@ -19,7 +19,9 @@ export const apiRequest = async (path, { token, method = 'GET', body } = {}) => 
     } catch {
       message = `${message}: ${response.statusText}`;
     }
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
 
   if (response.status === 204) return null;
@@ -27,9 +29,6 @@ export const apiRequest = async (path, { token, method = 'GET', body } = {}) => 
 };
 
 export const adminApiRequest = (path, options = {}) => {
-  if (!options.token) {
-    throw new Error('Iniciá sesión como administrador para realizar esta acción.');
-  }
   return apiRequest(path, options);
 };
 
@@ -120,6 +119,10 @@ export const loginApi = async (email, password) => {
     body: { email, password }
   });
 };
+
+export const getCurrentUserApi = () => apiRequest('/auth/me');
+
+export const logoutApi = () => apiRequest('/auth/logout', { method: 'POST' });
 
 /**
  * Registrar nuevo usuario con la API (Spring Boot /api/auth/register)

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/authSlice';
+import { logoutUser } from '../store/authSlice';
 import { switchCartUser } from '../store/cartSlice';
 import { clearAccount } from '../store/accountSlice';
 import { fetchCategorias } from '../services/api';
@@ -45,8 +45,9 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    const result = await dispatch(logoutUser());
+    if (!logoutUser.fulfilled.match(result)) return;
     dispatch(clearAccount());
     dispatch(switchCartUser(null));
     navigate('/');

@@ -4,8 +4,11 @@ import './Profile.css';
 const Profile = ({ user, orders = [], onLogout }) => {
   const navigate = useNavigate();
 
-  const handleLogoutClick = () => {
-    if (onLogout) onLogout();
+  const handleLogoutClick = async () => {
+    if (onLogout) {
+      const loggedOut = await onLogout();
+      if (!loggedOut) return;
+    }
     navigate('/');
   };
 

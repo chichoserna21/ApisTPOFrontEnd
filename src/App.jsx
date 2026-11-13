@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart, updateQuantity, removeFromCart, clearCart, switchCartUser } from './store/cartSlice';
-import { logout } from './store/authSlice';
+import { logoutUser, restoreSession } from './store/authSlice';
 import { clearAccount, checkoutOrder, loadAccountData, mutateServerCart } from './store/accountSlice';
 import { fetchProductos } from './services/api';
 import Navbar from './components/Navbar';
@@ -27,7 +27,14 @@ function App() {
 
   // Estados de Redux
   const cartItems = useSelector((state) => state.cart.items);
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const {
+    user,
+    isAuthenticated,
+    sessionInitialized,
+    sessionLoading,
+    sessionError,
+    logoutError
+  } = useSelector((state) => state.auth);
   const { profile, favorites, orders, loading: accountLoading, error: accountError } = useSelector((state) => state.account);
   const cartError = useSelector((state) => state.cart.syncError);
 
@@ -36,6 +43,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
   const [backendOnline, setBackendOnline] = useState(false);
+
+  useEffect(() => {
+    dispatch(restoreSession());
+  }, [dispatch]);
 
   /**
    * LLAMADA A LA API DEL TPO MEDIANTE EL HOOK useEffect
@@ -73,6 +84,10 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) dispatch(loadAccountData());
   }, [dispatch, isAuthenticated]);
+
+  useEffect(() => {
+    dispatch(switchCartUser(isAuthenticated ? user?.email : null));
+  }, [dispatch, isAuthenticated, user?.email]);
 
   const syncServerCart = (operation) => {
     const result = cartMutationQueue.current.then(() => dispatch(mutateServerCart(operation)));
@@ -113,10 +128,12 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    const result = await dispatch(logoutUser());
+    if (!logoutUser.fulfilled.match(result)) return false;
     dispatch(clearAccount());
     dispatch(switchCartUser(null));
+    return true;
   };
 
   const handleCheckout = async () => {
@@ -162,6 +179,8 @@ function App() {
         )}
       </div>
       {apiError && <p role="alert" className="auth-error-banner">{apiError}</p>}
+      {sessionError && <p role="alert" className="auth-error-banner">{sessionError}</p>}
+      {logoutError && <p role="alert" className="auth-error-banner">{logoutError}</p>}
       {accountError && <p role="alert" className="auth-error-banner">{accountError}</p>}
       {cartError && <p role="alert" className="auth-error-banner">{cartError}</p>}
 
@@ -221,7 +240,10 @@ function App() {
           <Route
             path="/favoritos"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute
+                isAuthenticated={isAuthenticated}
+                checkingSession={!sessionInitialized || sessionLoading}
+              >
                 <Favorites
                   products={products}
                   favoriteIds={favorites}
@@ -238,7 +260,10 @@ function App() {
           <Route
             path="/perfil"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute
+                isAuthenticated={isAuthenticated}
+                checkingSession={!sessionInitialized || sessionLoading}
+              >
                 <Profile
                   user={{ ...user, ...profile }}
                   orders={orders}
@@ -253,6 +278,7 @@ function App() {
             element={
               <ProtectedRoute
                 isAuthenticated={isAuthenticated}
+                checkingSession={!sessionInitialized || sessionLoading}
                 userRole={user?.rol}
                 requiredRole="ROLE_ADMIN"
                 checkingRole={
@@ -261,7 +287,6 @@ function App() {
                 }
               >
                 <AdminDashboard
-                  token={user?.token}
                   onProductsChanged={async () => {
                     const updatedProducts = await fetchProductos();
                     setProducts(updatedProducts);
