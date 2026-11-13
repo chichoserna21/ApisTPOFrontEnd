@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { adminApiRequest } from '../services/api';
+import { adminApiRequest, uploadImagenApi } from '../services/api';
 import './AdminDashboard.css';
 
 const SECTIONS = [
@@ -18,7 +18,7 @@ const emptyForm = (section) => {
       precio: '',
       stock: '',
       categoriaId: '',
-      imagenes: ''
+      imagenes: []
     };
   }
   if (section === 'ofertas') {
@@ -34,6 +34,8 @@ const emptyForm = (section) => {
   }
   return { nombre: '' };
 };
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 const localDateTimeValue = (value) => (value ? value.slice(0, 16) : '');
 
@@ -58,6 +60,55 @@ const AdminDashboard = ({ onProductsChanged }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+
+  const handleImageFiles = async (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (files.length === 0) return;
+
+    const invalid = files.find((file) => !file.type.startsWith('image/'));
+    if (invalid) {
+      setError(`"${invalid.name}" no es una imagen.`);
+      return;
+    }
+    const tooBig = files.find((file) => file.size > MAX_IMAGE_SIZE);
+    if (tooBig) {
+      setError(`"${tooBig.name}" supera el máximo de 5 MB.`);
+      return;
+    }
+
+    setUploadingImages(true);
+    setError('');
+    try {
+      const urls = await Promise.all(files.map(uploadImagenApi));
+      setForm((current) => ({ ...current, imagenes: [...current.imagenes, ...urls] }));
+    } catch (requestError) {
+      setError(`No se pudo subir la imagen: ${requestError.message}`);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const addImageUrl = () => {
+    const url = imageUrlInput.trim();
+    if (!url) return;
+    setForm((current) => ({ ...current, imagenes: [...current.imagenes, url] }));
+    setImageUrlInput('');
+  };
+
+  const removeImage = (index) => {
+    setForm((current) => ({ ...current, imagenes: current.imagenes.filter((_, i) => i !== index) }));
+  };
+
+  const moveImageFirst = (index) => {
+    setForm((current) => {
+      const imagenes = [...current.imagenes];
+      const [selected] = imagenes.splice(index, 1);
+      return { ...current, imagenes: [selected, ...imagenes] };
+    });
+  };
 
   useEffect(() => {
     let active = true;
@@ -110,7 +161,7 @@ const AdminDashboard = ({ onProductsChanged }) => {
         precio: item.precio ?? '',
         stock: item.stock ?? '',
         categoriaId: item.categoriaId ?? '',
-        imagenes: (item.imagenes || []).join('\n')
+        imagenes: [...(item.imagenes || [])]
       });
     } else if (activeSection === 'ofertas') {
       setForm({
@@ -142,7 +193,7 @@ const AdminDashboard = ({ onProductsChanged }) => {
         precio: Number(form.precio),
         stock: Number(form.stock),
         categoriaId: Number(form.categoriaId),
-        imagenes: form.imagenes.split('\n').map((url) => url.trim()).filter(Boolean)
+        imagenes: form.imagenes
       };
     } else if (activeSection === 'ofertas') {
       body = {
@@ -294,10 +345,61 @@ const AdminDashboard = ({ onProductsChanged }) => {
                   Descripción
                   <textarea name="descripcion" rows="3" value={form.descripcion} onChange={(event) => setForm({ ...form, descripcion: event.target.value })} required />
                 </label>
-                <label className="admin-field-wide">
-                  URLs de imágenes (una por línea)
-                  <textarea name="imagenes" rows="2" value={form.imagenes} onChange={(event) => setForm({ ...form, imagenes: event.target.value })} />
-                </label>
+                <div className="admin-field-wide admin-images-field">
+                  <span className="admin-images-label">Imágenes</span>
+                  <p className="admin-images-hint">La primera imagen es la principal del producto. JPG, PNG, WEBP o GIF, hasta 5 MB.</p>
+
+                  {form.imagenes.length > 0 && (
+                    <ul className="admin-images-list">
+                      {form.imagenes.map((url, index) => (
+                        <li key={`${url}-${index}`} className={index === 0 ? 'is-main' : ''}>
+                          <img src={url} alt={`Imagen ${index + 1} del producto`} />
+                          {index === 0 && <span className="admin-image-badge">Principal</span>}
+                          <div className="admin-image-actions">
+                            {index > 0 && (
+                              <button type="button" onClick={() => moveImageFirst(index)} disabled={uploadingImages}>
+                                Hacer principal
+                              </button>
+                            )}
+                            <button type="button" className="danger" onClick={() => removeImage(index)} disabled={uploadingImages}>
+                              Quitar
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="admin-images-controls">
+                    <label className={`admin-upload-button ${uploadingImages ? 'is-disabled' : ''}`}>
+                      {uploadingImages ? 'Subiendo...' : 'Subir imágenes'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        multiple
+                        onChange={handleImageFiles}
+                        disabled={uploadingImages}
+                      />
+                    </label>
+                    <div className="admin-image-url">
+                      <input
+                        type="url"
+                        placeholder="o pegá una URL de imagen"
+                        value={imageUrlInput}
+                        onChange={(event) => setImageUrlInput(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            addImageUrl();
+                          }
+                        }}
+                      />
+                      <button type="button" onClick={addImageUrl} disabled={!imageUrlInput.trim()}>
+                        Agregar
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -347,7 +449,7 @@ const AdminDashboard = ({ onProductsChanged }) => {
             )}
 
             <div className="admin-form-actions">
-              <button className="admin-primary-button" type="submit" disabled={saving || loading}>
+              <button className="admin-primary-button" type="submit" disabled={saving || loading || uploadingImages}>
                 {saving ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Crear'}
               </button>
             </div>
