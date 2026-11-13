@@ -27,7 +27,7 @@ const Ofertas = ({ products = [] }) => {
 
   const ofertasConProducto = ofertas.map((oferta) => ({
     oferta,
-    producto: products.find((item) => item.id === oferta.productoId)
+    producto: products.find((item) => Number(item.id) === Number(oferta.productoId))
   })).filter((item) => item.producto);
 
   return (
