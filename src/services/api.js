@@ -2,13 +2,16 @@ const API_BASE_URL = '/api';
 
 export const apiRequest = async (path, { method = 'GET', body } = {}) => {
   const headers = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  // FormData (subida de archivos) se envía tal cual: el navegador arma el
+  // Content-Type multipart con su boundary. El resto se envía como JSON.
+  const isFormData = body instanceof FormData;
+  if (body !== undefined && !isFormData) headers['Content-Type'] = 'application/json';
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
     credentials: 'include',
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {})
+    ...(body !== undefined ? { body: isFormData ? body : JSON.stringify(body) } : {})
   });
 
   if (!response.ok) {
@@ -30,6 +33,17 @@ export const apiRequest = async (path, { method = 'GET', body } = {}) => {
 
 export const adminApiRequest = (path, options = {}) => {
   return apiRequest(path, options);
+};
+
+/**
+ * Subir una imagen de producto (solo ADMIN). Devuelve la URL pública
+ * que hay que guardar en `imagenes` del producto.
+ */
+export const uploadImagenApi = async (archivo) => {
+  const formData = new FormData();
+  formData.append('archivo', archivo);
+  const data = await apiRequest('/imagenes', { method: 'POST', body: formData });
+  return data.url;
 };
 
 /**

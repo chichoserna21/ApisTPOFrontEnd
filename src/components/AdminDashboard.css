@@ -282,6 +282,143 @@
   text-align: center;
 }
 
+/* Gestión de imágenes de producto */
+.admin-images-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-images-label {
+  color: var(--alma-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.admin-images-hint {
+  margin: 0;
+  color: var(--alma-text-muted);
+  font-size: 0.78rem;
+}
+
+.admin-images-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-images-list li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--alma-card-border);
+  border-radius: var(--radius-sm);
+  background: var(--alma-secondary);
+}
+
+.admin-images-list li.is-main {
+  border-color: var(--alma-primary);
+}
+
+.admin-images-list img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #fff;
+}
+
+.admin-image-badge {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--alma-primary);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.admin-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.admin-image-actions button {
+  color: var(--alma-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.admin-image-actions button.danger {
+  color: #a23c3c;
+}
+
+.admin-images-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-form-grid .admin-upload-button {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  border: 1px dashed var(--alma-primary);
+  border-radius: var(--radius-sm);
+  background: var(--alma-badge-bg);
+  color: var(--alma-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-form-grid .admin-upload-button:hover {
+  background: var(--alma-secondary);
+}
+
+.admin-form-grid .admin-upload-button.is-disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.admin-upload-button input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-image-url {
+  display: flex;
+  flex: 1 1 260px;
+  gap: 0.5rem;
+}
+
+.admin-image-url button {
+  padding: 0 0.9rem;
+  border: 1px solid var(--alma-primary);
+  border-radius: var(--radius-sm);
+  color: var(--alma-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-image-url button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 760px) {
   .admin-page {
     margin-top: 1.5rem;
